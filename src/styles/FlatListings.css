@@ -1,0 +1,119 @@
+/* Animation classes for FlatListings component */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Gradient hover effects */
+.bg-gradient-to-r:hover {
+  transition: all 0.3s ease;
+}
+
+/* Form validation styles */
+.border-red-300:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.border-blue-500:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Step progress animation */
+.step-progress {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Form step transitions */
+.form-step-enter {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.form-step-exit {
+  animation: slideOutLeft 0.3s ease-in;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .progress-step {
+    font-size: 0.75rem;
+  }
+  
+  .form-title {
+    font-size: 2.5rem;
+  }
+}
+
+/* Button hover effects */
+.btn-gradient {
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Input focus effects */
+.input-focus {
+  transition: all 0.2s ease;
+}
+
+.input-focus:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Summary preview styling */
+.summary-preview {
+  background: linear-gradient(135deg, #eff6ff 0%, #f3e8ff 100%);
+  border: 1px solid #e0e7ff;
+}
+
+/* Icon styling */
+.icon-colored {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
