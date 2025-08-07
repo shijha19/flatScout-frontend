@@ -20,6 +20,7 @@ import EditProfile from './pages/EditProfile';
 import ChangePassword from './pages/ChangePassword';
 import FlatListings from './pages/FlatListings';
 import OAuthSuccess from './pages/OAuthSuccess';
+import OAuthTest from './pages/OAuthTest';
 import Dashboard from './pages/Dashboard';
 import FlatmateProfile from './pages/FlatmateProfile';
 import BookingCalendar from './pages/BookingCalendar';
@@ -50,6 +51,8 @@ const AppRoutes = () => (
       <Route path="/rent-estimator" element={<ProtectedRoute><RentEstimator /></ProtectedRoute>} />
       <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
       <Route path="/test-email" element={<ProtectedRoute><EmailTest /></ProtectedRoute>} />
+      {/* OAuth Test Page - Development Only */}
+      <Route path="/oauth-test" element={<OAuthTest />} />
       {/* Admin Dashboard - Admin Only */}
       <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
       {/* OAuth success must be public so it can set login state */}
