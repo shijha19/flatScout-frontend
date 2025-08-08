@@ -3,6 +3,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import FlatmateProtectedRoute from './components/FlatmateProtectedRoute';
+import FlatOwnerProtectedRoute from './components/FlatOwnerProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import Layout from './components/Layout';
 import App from './components/App';
@@ -43,7 +44,7 @@ const AppRoutes = () => (
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
       <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
-      <Route path="/flat-listings" element={<ProtectedRoute><FlatListings /></ProtectedRoute>} />
+      <Route path="/flat-listings" element={<FlatOwnerProtectedRoute><FlatListings /></FlatOwnerProtectedRoute>} />
       <Route path="/flats/:id" element={<ProtectedRoute><FlatDetails /></ProtectedRoute>} />
       <Route path="/find-flatmate" element={<FlatmateProtectedRoute><FindFlatmates /></FlatmateProtectedRoute>} />
       <Route path="/flatmate/:userId" element={<FlatmateProtectedRoute><FlatmateProfile /></FlatmateProtectedRoute>} />

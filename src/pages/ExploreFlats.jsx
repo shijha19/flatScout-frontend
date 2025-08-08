@@ -14,6 +14,11 @@ const ExploreFlats = () => {
   const [viewMode, setViewMode] = useState('grid'); // grid or list
   
   const location = useLocation();
+  
+  // Check if user is a flat owner
+  const userType = localStorage.getItem('userType');
+  const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+  const isFlatOwner = isLoggedIn && userType === 'flat_owner';
 
   // Get search term from URL parameters
   useEffect(() => {
@@ -282,16 +287,18 @@ const ExploreFlats = () => {
                   </button>
                 </div>
 
-                {/* Create Listing Button */}
-                <Link
-                  to="/flat-listings"
-                  className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  List Your Property
-                </Link>
+                {/* Create Listing Button - Only for flat owners */}
+                {isFlatOwner && (
+                  <Link
+                    to="/flat-listings"
+                    className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    List Your Property
+                  </Link>
+                )}
               </div>
             </div>
 

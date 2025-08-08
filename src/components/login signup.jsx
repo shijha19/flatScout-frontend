@@ -27,6 +27,7 @@ const LoginSignup = () => {
       localStorage.setItem('userLoggedIn', 'true');
       localStorage.setItem('userEmail', data.user.email); // Store email for profile fetch
       localStorage.setItem('name', data.user.name);
+      localStorage.setItem('userType', data.user.userType || 'flat_finder'); // Store user type
       if (data.user && data.user._id) {
         localStorage.setItem('userId', data.user._id);
       }

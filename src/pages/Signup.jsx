@@ -6,13 +6,14 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [userType, setUserType] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword || !userType) {
       setError('Please fill in all fields.');
       setSuccess('');
       return;
@@ -28,7 +29,7 @@ const Signup = () => {
       const response = await fetch('/api/user/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ name, email, password, userType })
       });
       const data = await response.json();
       if (response.ok) {
@@ -36,6 +37,7 @@ const Signup = () => {
         localStorage.setItem('userId', data.user._id);
         localStorage.setItem('userEmail', data.user.email);
         localStorage.setItem('name', data.user.name);
+        localStorage.setItem('userType', data.user.userType);
         localStorage.setItem('userLoggedIn', 'true');
         // Mark this as a new user who needs to complete preferences
         localStorage.removeItem('hasCompletedPreferences');
@@ -86,6 +88,37 @@ const Signup = () => {
               placeholder="Enter your email"
               required
             />
+          </div>
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">I am a</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setUserType('flat_finder')}
+                className={`p-3 text-center rounded-lg border-2 transition-all ${
+                  userType === 'flat_finder' 
+                    ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <div className="text-2xl mb-1">🔍</div>
+                <div className="font-semibold text-sm">Flat Finder</div>
+                <div className="text-xs text-gray-600">Looking for a place</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setUserType('flat_owner')}
+                className={`p-3 text-center rounded-lg border-2 transition-all ${
+                  userType === 'flat_owner' 
+                    ? 'border-green-500 bg-green-50 text-green-700' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <div className="text-2xl mb-1">🏠</div>
+                <div className="font-semibold text-sm">Flat Owner</div>
+                <div className="text-xs text-gray-600">Have property to rent</div>
+              </button>
+            </div>
           </div>
           <div>
             <label className="block mb-1 font-semibold text-gray-700">Password</label>

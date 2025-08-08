@@ -10,6 +10,11 @@ const dummyListings = [
 export default function App() {
   const [username, setUsername] = useState("Guest");
 
+  // Check user type for conditional rendering
+  const userType = localStorage.getItem('userType');
+  const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+  const isFlatOwner = isLoggedIn && userType === 'flat_owner';
+
   useEffect(() => {
     // Use the name set during login (assumed stored as 'name' in localStorage)
     const storedName = localStorage.getItem("name");
@@ -58,12 +63,15 @@ export default function App() {
               >
                 🏠 Explore {flatsCount}+ Flats
               </Link>
-              <Link
-                to="/flat-listings"
-                className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-lg"
-              >
-                📝 List Your Property
-              </Link>
+              {/* Only show List Property button for flat owners */}
+              {isFlatOwner && (
+                <Link
+                  to="/flat-listings"
+                  className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-lg"
+                >
+                  📝 List Your Property
+                </Link>
+              )}
             </div>
           </div>
         </div>

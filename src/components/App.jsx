@@ -11,20 +11,24 @@ export default function App() {
   const [username, setUsername] = useState("Guest");
   const navigate = useNavigate();
 
+  // Check user type for conditional rendering
+  const userType = localStorage.getItem('userType');
+  const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+  const isFlatOwner = isLoggedIn && userType === 'flat_owner';
+
   useEffect(() => {
     // Use the name set during login (assumed stored as 'name' in localStorage)
     const storedName = localStorage.getItem("name");
     if (storedName) setUsername(storedName);
 
     // Check if user is logged in but hasn't completed preferences
-    const isLoggedIn = localStorage.getItem("userLoggedIn");
     const hasCompletedPreferences = localStorage.getItem("hasCompletedPreferences");
     
     if (isLoggedIn && !hasCompletedPreferences) {
       // Redirect to preferences form
       navigate('/edit-flatmate-preferences?from=landing');
     }
-  }, [navigate]);
+  }, [navigate, isLoggedIn]);
 
   // State for backend flat listings (for stats)
   const [flatsCount, setFlatsCount] = useState(0);
@@ -68,12 +72,15 @@ export default function App() {
               >
                 🏠 Explore {flatsCount}+ Flats
               </Link>
-              <Link
-                to="/flat-listings"
-                className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-lg"
-              >
-                📝 List Your Property
-              </Link>
+              {/* Only show List Property button for flat owners */}
+              {isFlatOwner && (
+                <Link
+                  to="/flat-listings"
+                  className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-lg"
+                >
+                  📝 List Your Property
+                </Link>
+              )}
             </div>
           </div>
         </div>

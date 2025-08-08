@@ -171,11 +171,15 @@ const Navbar = () => {
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userId');
     localStorage.removeItem('name');
+    localStorage.removeItem('userType');
     localStorage.removeItem('token');
     setIsLoggedIn(false);
     navigate('/login');
   };
 
+  // Check user type from localStorage
+  const userType = localStorage.getItem('userType');
+  
   // Updated navLinks as per user request
   const navLinks = [
     { name: "Home", path: "/" },
@@ -185,6 +189,8 @@ const Navbar = () => {
       { name: "Find Flatmate", path: "/find-flatmate" },
       { name: "Booking Calendar", path: "/booking-calendar" },
       { name: "Rent Estimator", path: "/rent-estimator" },
+      // Add "List Property" link only for flat owners
+      ...(userType === 'flat_owner' ? [{ name: "List Property", path: "/flat-listings" }] : [])
     ] : [])
   ];
 

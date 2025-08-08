@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  
+  // Check user type for conditional rendering
+  const userType = localStorage.getItem('userType');
+  const userName = localStorage.getItem('name') || 'User';
+  const isFlatOwner = userType === 'flat_owner';
 
   useEffect(() => {
     // Check if user has completed preferences
@@ -16,8 +21,13 @@ export default function Dashboard() {
 
   return (
     <div style={{ padding: 32 }}>
-      <h1>Welcome to your Dashboard!</h1>
-      <p>You have successfully logged in and completed your profile setup.</p>
+      <h1>Welcome to your Dashboard, {userName}!</h1>
+      <p className="mb-4">
+        You have successfully logged in and completed your profile setup as a{' '}
+        <span className="font-semibold text-blue-600">
+          {isFlatOwner ? 'Flat Owner' : 'Flat Finder'}
+        </span>.
+      </p>
       <div className="mt-6 space-y-4">
         <a 
           href="/find-flatmate" 
@@ -32,6 +42,18 @@ export default function Dashboard() {
         >
           Explore Flats
         </a>
+        {/* Show List Property option only for flat owners */}
+        {isFlatOwner && (
+          <>
+            <br />
+            <a 
+              href="/flat-listings" 
+              className="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
+            >
+              📝 List Your Property
+            </a>
+          </>
+        )}
       </div>
     </div>
   );
