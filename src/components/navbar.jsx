@@ -151,7 +151,21 @@ const Navbar = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Call logout endpoint to log the activity
+      const userEmail = localStorage.getItem('userEmail');
+      if (userEmail) {
+        await fetch('/api/user/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmail })
+        });
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+
     // Remove all user-related info from localStorage
     localStorage.removeItem('userLoggedIn');
     localStorage.removeItem('userEmail');
@@ -370,9 +384,16 @@ const Navbar = () => {
                     </span>
                   )}
                 </Link>
-                <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-yellow-50">Profile</Link>
-                <Link to="/report-listing" className="block px-4 py-2 text-gray-700 hover:bg-pink-50">Report Listing</Link>
-                <Link to="/settings" className="block px-4 py-2 text-gray-700 hover:bg-pink-50">Settings</Link>
+                <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-yellow-50" onClick={() => setIsOpen(false)}>Profile</Link>
+                <Link to="/report-listing" className="block px-4 py-2 text-gray-700 hover:bg-pink-50" onClick={() => setIsOpen(false)}>Report Listing</Link>
+                {isAdmin && (
+                  <Link to="/admin" className="block px-4 py-2 text-gray-700 hover:bg-blue-50" onClick={() => setIsOpen(false)}>
+                    <span className="flex items-center">
+                      <span className="text-blue-600 mr-2">⚙️</span>
+                      Admin Dashboard
+                    </span>
+                  </Link>
+                )}
                 <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-orange-50" onClick={handleLogout}>Logout</button>
               </div>
             )}
