@@ -165,6 +165,7 @@ const Navbar = () => {
   // Updated navLinks as per user request
   const navLinks = [
     { name: "Home", path: "/" },
+    { name: "Explore Flats", path: "/explore-flats" },
     // Feature links only for logged in users
     ...(isLoggedIn ? [
       { name: "Find Flatmate", path: "/find-flatmate" },

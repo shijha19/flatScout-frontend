@@ -11,6 +11,7 @@ import Signup from './pages/Signup';
 import FindFlatmates from './components/FindFlatmates';
 import FlatmateForm from './components/FlatmateForm';
 import EmailTest from './components/EmailTest';
+import ExploreFlats from './pages/ExploreFlats';
 
 
 
@@ -33,6 +34,7 @@ const AppRoutes = () => (
   <Layout>
     <Routes>
       <Route path="/" element={<App />} />
+      <Route path="/explore-flats" element={<ExploreFlats />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<Signup />} />
       {/* Flatmate preferences accessible to new users */}

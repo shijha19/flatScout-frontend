@@ -178,14 +178,12 @@ export default function App() {
                 >
                   Start Exploring Now
                 </Link>
-                {username === "Guest" && (
-                  <Link
-                    to="/signup"
-                    className="bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-600 font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-lg"
-                  >
-                    Create Free Account
-                  </Link>
-                )}
+                <Link
+                  to="/signup"
+                  className="bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-600 font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-lg"
+                >
+                  Create Free Account
+                </Link>
               </div>
             </div>
           </div>
