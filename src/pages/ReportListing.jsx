@@ -41,21 +41,22 @@ const ReportListing = () => {
   }, []);
 
   // Fetch user's report history
-  useEffect(() => {
-    const fetchReportHistory = async () => {
-      try {
-        const userEmail = localStorage.getItem('userEmail');
-        if (userEmail) {
-          // TODO: Implement API call to fetch user's report history
-          // const response = await fetch(`/api/reports/user/${userEmail}`);
-          // const data = await response.json();
-          // setReportHistory(data.reports || []);
+  const fetchReportHistory = async () => {
+    try {
+      const userEmail = localStorage.getItem('userEmail');
+      if (userEmail) {
+        const response = await fetch(`/api/reports/history/${encodeURIComponent(userEmail)}`);
+        if (response.ok) {
+          const data = await response.json();
+          setReportHistory(data.reports || []);
         }
-      } catch (error) {
-        console.error('Error fetching report history:', error);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching report history:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchReportHistory();
   }, []);
 
@@ -128,31 +129,29 @@ const ReportListing = () => {
     setIsSubmitting(true);
 
     try {
-      // Get selected listing details if reporting existing listing
-      let listingDetails = null;
-      if (formData.reportMethod === 'existing' && formData.existingListingId) {
-        listingDetails = existingFlats.find(flat => flat._id === formData.existingListingId);
-      }
-
       const reportData = {
-        ...formData,
-        listingDetails,
-        reporterId: localStorage.getItem('userId'),
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        ipAddress: 'client-side', // Will be captured on server
-        severity: reportTypes.find(type => type.value === formData.reportType)?.severity || 'medium'
+        reportMethod: formData.reportMethod,
+        existingListingId: formData.existingListingId,
+        listingUrl: formData.listingUrl,
+        reportType: formData.reportType,
+        description: formData.description,
+        reporterName: formData.reporterName,
+        reporterEmail: formData.reporterEmail,
+        evidence: formData.evidence,
+        priority: formData.priority,
+        category: formData.category,
+        contactAttempted: formData.contactAttempted
       };
 
-      // TODO: Implement API call to submit report
-      const response = await fetch('/api/reports', {
+      const response = await fetch('/api/reports/submit', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(reportData)
       });
+
+      const result = await response.json();
 
       if (response.ok) {
         setSuccess(true);
@@ -175,12 +174,15 @@ const ReportListing = () => {
 
         // Show success for 3 seconds then hide
         setTimeout(() => setSuccess(false), 5000);
+        
+        // Refresh report history
+        fetchReportHistory();
       } else {
-        throw new Error('Failed to submit report');
+        throw new Error(result.message || 'Failed to submit report');
       }
     } catch (error) {
       console.error('Error submitting report:', error);
-      setErrors({ submit: 'Error submitting report. Please try again.' });
+      setErrors({ submit: error.message || 'Error submitting report. Please try again.' });
     } finally {
       setIsSubmitting(false);
     }

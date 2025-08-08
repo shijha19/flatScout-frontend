@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MapComponent from '../components/MapComponent';
 
 const dummyListings = [
@@ -9,12 +9,22 @@ const dummyListings = [
 
 export default function App() {
   const [username, setUsername] = useState("Guest");
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Use the name set during login (assumed stored as 'name' in localStorage)
     const storedName = localStorage.getItem("name");
     if (storedName) setUsername(storedName);
-  }, []);
+
+    // Check if user is logged in but hasn't completed preferences
+    const isLoggedIn = localStorage.getItem("userLoggedIn");
+    const hasCompletedPreferences = localStorage.getItem("hasCompletedPreferences");
+    
+    if (isLoggedIn && !hasCompletedPreferences) {
+      // Redirect to preferences form
+      navigate('/edit-flatmate-preferences?from=landing');
+    }
+  }, [navigate]);
 
   // State for backend flat listings (for stats)
   const [flatsCount, setFlatsCount] = useState(0);

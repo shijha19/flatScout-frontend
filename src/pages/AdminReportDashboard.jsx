@@ -5,12 +5,15 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [activities, setActivities] = useState([]);
   const [systemMetrics, setSystemMetrics] = useState(null);
+  const [reportedFlats, setReportedFlats] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [userPage, setUserPage] = useState(1);
   const [activityPage, setActivityPage] = useState(1);
+  const [reportPage, setReportPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [actionFilter, setActionFilter] = useState('');
+  const [reportStatusFilter, setReportStatusFilter] = useState('');
 
   const userEmail = localStorage.getItem('userEmail');
 
@@ -24,8 +27,10 @@ export default function AdminDashboard() {
       fetchUsers();
     } else if (activeTab === 'activities') {
       fetchActivities();
+    } else if (activeTab === 'reportedFlats') {
+      fetchReportedFlats();
     }
-  }, [activeTab, userPage, activityPage, searchTerm, actionFilter]);
+  }, [activeTab, userPage, activityPage, reportPage, searchTerm, actionFilter, reportStatusFilter]);
 
   const fetchDashboardStats = async () => {
     try {
@@ -75,6 +80,41 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error('Error fetching system metrics:', error);
+    }
+  };
+
+  const fetchReportedFlats = async () => {
+    try {
+      const url = `/api/admin/reports?userEmail=${encodeURIComponent(userEmail)}&page=${reportPage}&limit=10${reportStatusFilter ? `&status=${reportStatusFilter}` : ''}`;
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        setReportedFlats(data);
+      }
+    } catch (error) {
+      console.error('Error fetching reported flats:', error);
+    }
+  };
+
+  const updateReportStatus = async (reportId, newStatus) => {
+    try {
+      const response = await fetch(`/api/admin/reports/${reportId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus, userEmail }),
+      });
+
+      if (response.ok) {
+        fetchReportedFlats(); // Refresh reports list
+        alert(`Report status updated to ${newStatus} successfully!`);
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.message}`);
+      }
+    } catch (error) {
+      alert('Error updating report status');
     }
   };
 
@@ -166,6 +206,7 @@ export default function AdminDashboard() {
               { id: 'users', name: 'Users', icon: '👥' },
               { id: 'activities', name: 'Activity Logs', icon: '📋' },
               { id: 'metrics', name: 'System Metrics', icon: '📈' },
+              { id: 'reportedFlats', name: 'Reported Flats', icon: '🚩' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -553,6 +594,161 @@ export default function AdminDashboard() {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reported Flats Tab */}
+        {activeTab === 'reportedFlats' && (
+          <div className="space-y-6">
+            <div className="bg-white shadow rounded-lg">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium text-gray-900">Reported Flats</h3>
+                  <select
+                    value={reportStatusFilter}
+                    onChange={(e) => setReportStatusFilter(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="reviewed">Reviewed</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="dismissed">Dismissed</option>
+                  </select>
+                </div>
+                <p className="text-gray-500 text-sm mt-1">View and manage flats that have been reported by users.</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Report ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Flat Title</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reported By</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {reportedFlats.reports && reportedFlats.reports.length > 0 ? (
+                      reportedFlats.reports.map((report) => (
+                        <tr key={report._id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {report._id.substring(0, 8)}...
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {report.listingId ? report.listingId.title : 'External URL'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div>
+                              <div className="font-medium">{report.reportedBy?.name || 'Unknown'}</div>
+                              <div className="text-gray-500">{report.reportedBy?.email || 'No email'}</div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              report.reason === 'fraud' ? 'bg-red-100 text-red-800' :
+                              report.reason === 'fake_listing' ? 'bg-orange-100 text-orange-800' :
+                              report.reason === 'spam' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {report.reason.replace(/_/g, ' ')}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              report.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              report.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
+                              report.status === 'resolved' ? 'bg-green-100 text-green-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {report.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {formatDate(report.createdAt)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            {report.status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={() => updateReportStatus(report._id, 'reviewed')}
+                                  className="text-blue-600 hover:text-blue-900"
+                                >
+                                  Review
+                                </button>
+                                <button
+                                  onClick={() => updateReportStatus(report._id, 'resolved')}
+                                  className="text-green-600 hover:text-green-900"
+                                >
+                                  Resolve
+                                </button>
+                                <button
+                                  onClick={() => updateReportStatus(report._id, 'dismissed')}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Dismiss
+                                </button>
+                              </>
+                            )}
+                            {report.status === 'reviewed' && (
+                              <>
+                                <button
+                                  onClick={() => updateReportStatus(report._id, 'resolved')}
+                                  className="text-green-600 hover:text-green-900"
+                                >
+                                  Resolve
+                                </button>
+                                <button
+                                  onClick={() => updateReportStatus(report._id, 'dismissed')}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Dismiss
+                                </button>
+                              </>
+                            )}
+                            {(report.status === 'resolved' || report.status === 'dismissed') && (
+                              <span className="text-gray-400">No actions</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                          No reports found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {reportedFlats.pagination && (
+                <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
+                  <div className="text-sm text-gray-500">
+                    Showing {((reportedFlats.pagination.page - 1) * reportedFlats.pagination.limit) + 1} to {Math.min(reportedFlats.pagination.page * reportedFlats.pagination.limit, reportedFlats.pagination.total)} of {reportedFlats.pagination.total} reports
+                  </div>
+                  <div className="space-x-2">
+                    <button
+                      onClick={() => setReportPage(prev => Math.max(prev - 1, 1))}
+                      disabled={reportPage === 1}
+                      className="px-3 py-1 bg-gray-200 text-gray-700 rounded disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => setReportPage(prev => prev + 1)}
+                      disabled={reportPage >= reportedFlats.pagination.pages}
+                      className="px-3 py-1 bg-gray-200 text-gray-700 rounded disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

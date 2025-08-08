@@ -79,6 +79,7 @@ export default function FlatmateForm() {
       return;
     }
     try {
+      // Save flatmate profile
       await axios.post(`/api/flatmates/profile/${form.userId}`, {
         ...form,
         userEmail: form.userEmail || localStorage.getItem("userEmail") || "",
@@ -88,15 +89,24 @@ export default function FlatmateForm() {
         hobbies: form.hobbies.split(',').map(h => h.trim()),
         name: form.name || localStorage.getItem("name") || "User",
       });
+
+      // Mark user as having completed preferences in the database
+      const userEmail = form.userEmail || localStorage.getItem("userEmail");
+      if (userEmail) {
+        await axios.put('/api/user/preferences-completed', {
+          email: userEmail
+        });
+      }
+
       setSuccess(true);
-      // Mark that user has completed preferences
+      // Mark that user has completed preferences in localStorage
       localStorage.setItem('hasCompletedPreferences', 'true');
       
       setTimeout(() => {
         setSuccess(false);
         if (isNewUser) {
-          // For new users, redirect to find flatmate page to see immediate results
-          navigate("/find-flatmate", { replace: true });
+          // For new users, redirect to home page
+          navigate("/", { replace: true });
         } else {
           // For existing users editing preferences, go back to find flatmate page
           navigate("/find-flatmate", { replace: true });
@@ -114,13 +124,18 @@ export default function FlatmateForm() {
         <div className="bg-gradient-to-r from-green-400 to-blue-500 text-white text-center py-4 mb-6">
           <div className="max-w-2xl mx-auto px-4">
             <h2 className="text-2xl font-bold mb-2">
-              {fromSource === 'signup' ? '🎉 Welcome to FlatScout!' : '👋 Complete Your Profile!'}
+              {fromSource === 'signup' && '🎉 Welcome to FlatScout!'}
+              {fromSource === 'login' && '👋 Complete Your Profile!'}
+              {fromSource === 'oauth' && '🎉 Welcome to FlatScout!'}
+              {fromSource === 'landing' && '🏠 Let\'s Set You Up!'}
+              {!fromSource && '👋 Complete Your Profile!'}
             </h2>
             <p className="text-lg">
-              {fromSource === 'signup' 
-                ? 'Just one more step - complete your profile to find amazing flatmates!'
-                : 'Set up your preferences to start finding compatible flatmates!'
-              }
+              {fromSource === 'signup' && 'Just one more step - complete your profile to find amazing flatmates!'}
+              {fromSource === 'login' && 'Complete your flatmate preferences to access all features!'}
+              {fromSource === 'oauth' && 'Complete your profile to start finding compatible flatmates!'}
+              {fromSource === 'landing' && 'Set up your preferences to unlock personalized flatmate matching!'}
+              {!fromSource && 'Set up your preferences to start finding compatible flatmates!'}
             </p>
             <div className="mt-3 flex justify-center">
               <div className="flex items-center space-x-2">

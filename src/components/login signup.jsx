@@ -31,13 +31,22 @@ const LoginSignup = () => {
         localStorage.setItem('userId', data.user._id);
       }
       
-      // Check if user has completed preferences, if not redirect to preferences form
-      // For existing users, we'll assume they need to complete preferences if flag is not set
-      const hasCompletedPreferences = localStorage.getItem('hasCompletedPreferences');
-      if (!hasCompletedPreferences) {
+      // Check preferences status from server (includes auto-migration for existing users)
+      try {
+        const prefRes = await fetch(`/api/user/preferences-status/${encodeURIComponent(data.user.email)}`);
+        const prefData = await prefRes.json();
+        
+        if (prefRes.ok && prefData.hasCompletedPreferences) {
+          localStorage.setItem('hasCompletedPreferences', 'true');
+          navigate('/');
+        } else {
+          localStorage.removeItem('hasCompletedPreferences');
+          navigate('/edit-flatmate-preferences?from=login');
+        }
+      } catch (prefErr) {
+        // If preferences check fails, assume they need to complete preferences
+        localStorage.removeItem('hasCompletedPreferences');
         navigate('/edit-flatmate-preferences?from=login');
-      } else {
-        navigate('/'); // Redirect to home page
       }
     } catch (err) {
       setError(err.message);
