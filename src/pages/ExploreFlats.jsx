@@ -12,6 +12,7 @@ const ExploreFlats = () => {
     sortBy: 'newest'
   });
   const [viewMode, setViewMode] = useState('grid'); // grid or list
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   
   const location = useLocation();
   
@@ -146,9 +147,29 @@ const ExploreFlats = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <div className="lg:w-1/4">
-            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-24">
+          {/* Filters Sidebar - Responsive */}
+          {/* Filter Button (visible on all screens) */}
+          <div className="mb-4">
+            <button
+              onClick={() => setShowMobileFilters(true)}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-blue-700 transition-all"
+            >
+              Show Filters
+            </button>
+          </div>
+
+          {/* Overlay for drawer on all screens */}
+          {showMobileFilters && (
+            <div className="fixed inset-0 z-40 bg-black bg-opacity-40" onClick={() => setShowMobileFilters(false)}></div>
+          )}
+          {/* Sidebar/Drawer for all screens */}
+          <div
+            className={`fixed z-50 top-0 left-0 h-full w-80 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+              ${showMobileFilters ? 'translate-x-0' : '-translate-x-full'}
+              `}
+            style={{ maxWidth: '100vw' }}
+          >
+            <div className="p-6 sticky top-0">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-gray-900">Filters</h3>
                 <button
@@ -156,6 +177,14 @@ const ExploreFlats = () => {
                   className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                 >
                   Clear All
+                </button>
+                {/* Close button for all screens */}
+                <button
+                  className="ml-2 text-gray-500 hover:text-gray-800 text-2xl font-bold"
+                  onClick={() => setShowMobileFilters(false)}
+                  aria-label="Close Filters"
+                >
+                  ×
                 </button>
               </div>
 
@@ -412,6 +441,53 @@ const ExploreFlats = () => {
                       <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                         {flat.description || 'Beautiful property with modern amenities and excellent connectivity.'}
                       </p>
+
+                      {/* Reviews and Rating Section */}
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          {flat.averageRating > 0 ? (
+                            <>
+                              <div className="flex items-center gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                  <span 
+                                    key={i} 
+                                    className={`text-lg ${
+                                      i < Math.floor(flat.averageRating) 
+                                        ? 'text-yellow-400' 
+                                        : i === Math.floor(flat.averageRating) && flat.averageRating % 1 >= 0.5
+                                        ? 'text-yellow-300'
+                                        : 'text-gray-300'
+                                    }`}
+                                  >
+                                    ⭐
+                                  </span>
+                                ))}
+                              </div>
+                              <span className="text-sm font-semibold text-gray-700 ml-1">
+                                {flat.averageRating}/5
+                              </span>
+                              <span className="text-xl text-gray-400 mx-1">·</span>
+                              <span className="text-sm text-gray-600">
+                                {flat.totalReviews || 0} review{(flat.totalReviews || 0) !== 1 ? 's' : ''}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-sm text-gray-500 italic">No ratings yet</span>
+                          )}
+                        </div>
+                        
+                        {/* Latest Review Preview */}
+                        {flat.reviews && flat.reviews.length > 0 && (
+                          <div className="border-t border-yellow-200 pt-2">
+                            <div className="text-xs text-gray-600 mb-1">
+                              Latest Review by {flat.reviews[0].reviewerName}
+                            </div>
+                            <p className="text-sm text-gray-700 line-clamp-2">
+                              "{flat.reviews[0].comment}"
+                            </p>
+                          </div>
+                        )}
+                      </div>
 
                       {/* Contact Info */}
                       {flat.contactName && (
