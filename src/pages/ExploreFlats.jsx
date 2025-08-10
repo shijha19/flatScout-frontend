@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import WishlistButton from '../components/WishlistButton';
 
 const ExploreFlats = () => {
   const [flats, setFlats] = useState([]);
@@ -375,6 +376,16 @@ const ExploreFlats = () => {
                         </div>
                       )}
                       
+                      {/* Wishlist Button */}
+                      <div className="absolute top-4 left-4 z-20" onClick={(e) => e.stopPropagation()}>
+                        <WishlistButton
+                          itemType="flat"
+                          itemId={flat._id}
+                          size="md"
+                          showText={false}
+                        />
+                      </div>
+
                       {/* Price Badge */}
                       <div className="absolute top-4 right-4">
                         <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full shadow-lg">
@@ -385,7 +396,7 @@ const ExploreFlats = () => {
 
                       {/* Furnished Badge */}
                       {flat.furnished && (
-                        <div className="absolute top-4 left-4">
+                        <div className="absolute bottom-4 left-4">
                           <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
                             flat.furnished === 'Furnished' 
                               ? 'bg-green-100 text-green-800' 
@@ -397,6 +408,16 @@ const ExploreFlats = () => {
                           </span>
                         </div>
                       )}
+
+                      {/* Wishlist Button */}
+                      <div className="absolute top-4 right-4 z-20" onClick={(e) => e.stopPropagation()}>
+                        <WishlistButton
+                          itemType="flat"
+                          itemId={flat._id}
+                          size="md"
+                          showText={false}
+                        />
+                      </div>
                     </div>
 
                     {/* Content Section */}

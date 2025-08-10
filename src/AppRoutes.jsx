@@ -30,6 +30,8 @@ import ReportListing from './pages/ReportListing';
 import RentEstimator from './pages/RentEstimator';
 import AdminDashboard from './pages/AdminReportDashboard';
 import ChatPage from './pages/ChatPage';
+import NotificationTest from './components/NotificationTest';
+import WishlistPage from './pages/WishlistPage';
 
 const AppRoutes = () => (
   <Layout>
@@ -53,7 +55,9 @@ const AppRoutes = () => (
       <Route path="/report-listing" element={<ProtectedRoute><ReportListing /></ProtectedRoute>} />
       <Route path="/rent-estimator" element={<ProtectedRoute><RentEstimator /></ProtectedRoute>} />
       <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+      <Route path="/wishlist" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
       <Route path="/test-email" element={<ProtectedRoute><EmailTest /></ProtectedRoute>} />
+      <Route path="/test-notifications" element={<ProtectedRoute><NotificationTest /></ProtectedRoute>} />
       {/* OAuth Test Page - Development Only */}
       <Route path="/oauth-test" element={<OAuthTest />} />
       {/* Admin Dashboard - Admin Only */}

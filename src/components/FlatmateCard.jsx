@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import WishlistButton from './WishlistButton';
 
 export default function FlatmateCard({ profile, alreadyConnected }) {
   const [connecting, setConnecting] = useState(false);
@@ -156,7 +156,19 @@ export default function FlatmateCard({ profile, alreadyConnected }) {
       }}
       title="Click to view full profile"
     >
-      <div className="absolute top-3 right-3">
+      <div className="absolute top-3 right-3 flex items-center gap-2">
+        <div onClick={(e) => e.stopPropagation()}>
+          <WishlistButton
+            itemType="flatmate"
+            itemId={profile.actualUserId || profile._id || profile.userId}
+            size="sm"
+            className="z-10"
+            onStatusChange={(status) => {
+              // Optional: Handle wishlist status change if needed
+              console.log('Wishlist status changed:', status);
+            }}
+          />
+        </div>
         <span className={`inline-block w-3 h-3 rounded-full ${
           connectionStatus === 'connected' ? 'bg-green-400' : 
           connectionStatus === 'request_sent' ? 'bg-yellow-400' :

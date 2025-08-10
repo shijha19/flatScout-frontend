@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useChatContext } from "../contexts/ChatContext";
+import NotificationCenter from "./NotificationCenter";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -187,6 +188,7 @@ const Navbar = () => {
     // Feature links only for logged in users
     ...(isLoggedIn ? [
       { name: "Find Flatmate", path: "/find-flatmate" },
+      { name: "Wishlist", path: "/wishlist" },
       { name: "Booking Calendar", path: "/booking-calendar" },
       { name: "Rent Estimator", path: "/rent-estimator" },
       // Add "List Property" link only for flat owners
@@ -240,68 +242,8 @@ const Navbar = () => {
                     </span>
                   )}
                 </Link>
-                <div className="relative ml-4" ref={notificationRef}>
-                  <button
-                    onClick={() => {
-                      console.log('[Navbar] Bell icon clicked');
-                      setShowNotifications((prev) => !prev);
-                      fetchNotifications(); // Fetch notifications when bell is clicked
-                    }}
-                    className="relative focus:outline-none"
-                    aria-label="Notifications"
-                  >
-                    <svg className="h-7 w-7 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
-                    {notifications.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs px-1.5 py-0.5">{notifications.length}</span>
-                    )}
-                  </button>
-                  {showNotifications && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white border border-pink-100 rounded shadow-lg py-2 z-[10000] max-h-80 overflow-y-auto">
-                      <div className="px-4 py-2 font-bold text-pink-700 border-b">Connection Requests</div>
-                      {notifications.length === 0 ? (
-                        <div className="px-4 py-2 text-gray-500">No new connection requests.</div>
-                      ) : (
-                        notifications.map((n) => (
-                          <div key={n._id} className="px-4 py-3 border-b last:border-b-0">
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="font-semibold text-pink-700">{n.name}</span>
-                                  <span className="text-gray-500 text-xs">({n.email})</span>
-                                </div>
-                                {n.direction === "received" ? (
-                                  <p className="text-xs text-gray-600">wants to connect with you</p>
-                                ) : (
-                                  <p className="text-xs text-gray-600">You sent a request to this user</p>
-                                )}
-                              </div>
-                            </div>
-                            {n.direction === "received" && (
-                              <div className="flex gap-2 mt-2">
-                                <button
-                                  onClick={() => handleConnectionResponse(n._id, 'accept')}
-                                  disabled={processingRequest === n._id}
-                                  className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition disabled:opacity-50"
-                                >
-                                  {processingRequest === n._id ? 'Processing...' : 'Accept'}
-                                </button>
-                                <button
-                                  onClick={() => handleConnectionResponse(n._id, 'decline')}
-                                  disabled={processingRequest === n._id}
-                                  className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition disabled:opacity-50"
-                                >
-                                  {processingRequest === n._id ? 'Processing...' : 'Decline'}
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
+                {/* Notification Center */}
+                <NotificationCenter />
                 <div className="relative ml-2" ref={profileRef}>
                   <button
                     onClick={() => setProfileOpen((prev) => !prev)}
