@@ -222,90 +222,72 @@ const NotificationCenter = () => {
   // Accept/Decline connection handlers
   const handleAcceptConnection = async (notification) => {
     try {
-      console.log('Notification object:', notification); // Debug log
+      console.log('=== ACCEPT CONNECTION DEBUG ===');
+      console.log('Full notification object:', JSON.stringify(notification, null, 2));
+      console.log('Notification type:', notification.type);
+      console.log('Notification metadata:', notification.metadata);
+      console.log('metadata keys:', notification.metadata ? Object.keys(notification.metadata) : 'metadata is null/undefined');
       
-      // Try different possible field names for the connection request ID
-      const requestId = notification.metadata?.connectionRequestId || 
-                       notification.connectionId || 
-                       notification.connectionRequestId || 
-                       notification.relatedId ||
-                       notification._id;
-      
-      console.log('Using requestId:', requestId); // Debug log
-      
-      if (!requestId) {
-        console.error('No connection request ID found in notification:', notification);
-        alert('Unable to find connection request. Please refresh and try again.');
+      if (notification.type !== 'connection_request') {
+        alert('This notification is not a connection request.');
         return;
       }
-      
-      const res = await fetch(`/api/connectionRequest/accept-request`, {
+      const requestId = notification.metadata?.connectionRequestId;
+      console.log('Extracted requestId:', requestId);
+      if (!requestId) {
+        alert('No connection request ID found in notification. Please refresh and try again.');
+        return;
+      }
+      const res = await fetch(`/api/connection/accept-request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          requestId: requestId,
+          requestId,
           userEmail,
         }),
       });
-      
       const responseData = await res.json();
-      console.log('Response:', responseData); // Debug log
-      
       if (res.ok) {
         setNotifications(prev => prev.filter(n => n._id !== notification._id));
         setUnreadCount(prev => Math.max(0, prev - 1));
         alert('Connection request accepted successfully!');
       } else {
-        console.error('Failed to accept connection request:', responseData);
         alert(`Failed to accept connection request: ${responseData.message || 'Unknown error'}`);
       }
     } catch (err) {
-      console.error('Error accepting connection request:', err);
       alert('Error accepting connection request.');
     }
   };
 
   const handleDeclineConnection = async (notification) => {
     try {
-      console.log('Declining notification object:', notification); // Debug log
-      
-      // Try different possible field names for the connection request ID
-      const requestId = notification.metadata?.connectionRequestId || 
-                       notification.connectionId || 
-                       notification.connectionRequestId || 
-                       notification.relatedId ||
-                       notification._id;
-      
-      console.log('Using requestId for decline:', requestId); // Debug log
-      
-      if (!requestId) {
-        console.error('No connection request ID found in notification:', notification);
-        alert('Unable to find connection request. Please refresh and try again.');
+      if (notification.type !== 'connection_request') {
+        alert('This notification is not a connection request.');
         return;
       }
-      
-      const res = await fetch(`/api/connectionRequest/decline-request`, {
+      const requestId = notification.metadata?.connectionRequestId;
+      console.log('Decline: notification:', notification);
+      if (!requestId) {
+        alert('No connection request ID found in notification. Please refresh and try again.');
+        return;
+      }
+      const res = await fetch(`/api/connection/decline-request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          requestId: requestId,
+          requestId,
           userEmail,
         }),
       });
-      
       const responseData = await res.json();
-      console.log('Decline response:', responseData); // Debug log
-      
       if (res.ok) {
         setNotifications(prev => prev.filter(n => n._id !== notification._id));
         setUnreadCount(prev => Math.max(0, prev - 1));
         alert('Connection request declined successfully!');
       } else {
-        console.error('Failed to decline connection request:', responseData);
         alert(`Failed to decline connection request: ${responseData.message || 'Unknown error'}`);
       }
     } catch (err) {
-      console.error('Error declining connection request:', err);
       alert('Error declining connection request.');
     }
   };
