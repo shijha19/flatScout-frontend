@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import MapComponent from '../components/MapComponent';
+import PWAInstallPrompt from '../components/PWAInstallPrompt';
+import OfflineIndicator from '../components/OfflineIndicator';
 
 const dummyListings = [
   { name: "PG Alpha", latitude: 28.6139, longitude: 77.2090 },
@@ -208,6 +210,10 @@ export default function App() {
           </div>
         </div>
       </div>
+      
+      {/* PWA Components */}
+      <PWAInstallPrompt />
+      <OfflineIndicator />
     </>
   );
 }

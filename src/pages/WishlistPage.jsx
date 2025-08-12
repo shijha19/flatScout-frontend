@@ -74,11 +74,18 @@ const WishlistCard = ({ item, selectedItems, setSelectedItems, updateItemDetails
     setEditingNotes(false);
   };
 
+  // Prefer flat.image for flats, fallback to itemSnapshot.imageUrl, then placeholder
+  let imageUrl = 'https://via.placeholder.com/300x200?text=No+Image';
+  if (item.itemType === 'flat') {
+    imageUrl = item.itemSnapshot?.image || item.itemSnapshot?.imageUrl || imageUrl;
+  } else {
+    imageUrl = item.itemSnapshot?.imageUrl || imageUrl;
+  }
   return (
     <div className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-200 group">
       <div className="relative">
         <img
-          src={item.itemSnapshot?.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'}
+          src={imageUrl}
           alt={item.itemSnapshot?.title || 'Wishlist Item'}
           className="w-full h-48 object-cover rounded-t-lg cursor-pointer"
           onClick={() => navigateToItem(item)}
@@ -767,7 +774,10 @@ const WishlistPage = () => {
             <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No saved items yet</h3>
             <p className="text-gray-600 mb-6">Start saving flats, flatmates, and PGs to organize your search</p>
-            <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <button 
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              onClick={() => navigate('/explore-flats')}
+            >
               Browse Properties
             </button>
           </div>

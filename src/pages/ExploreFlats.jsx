@@ -10,7 +10,16 @@ const ExploreFlats = () => {
     priceRange: 'all',
     bedrooms: 'all',
     furnished: 'all',
-    sortBy: 'newest'
+    sortBy: 'newest',
+    // Enhanced filters
+    amenities: [],
+    area: { min: '', max: '' },
+    location: '',
+    rating: 'all',
+    availability: 'all',
+    propertyType: 'all',
+    parking: 'all',
+    petFriendly: 'all'
   });
   const [viewMode, setViewMode] = useState('grid'); // grid or list
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -48,14 +57,16 @@ const ExploreFlats = () => {
     fetchFlats();
   }, []);
 
-  // Filter and sort flats
+  // Filter and sort flats with enhanced filters
   const filteredAndSortedFlats = flats
     .filter(flat => {
+      // Basic search
       const matchesSearch = !searchTerm || 
         flat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         flat.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (flat.description && flat.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
+      // Price filter
       const matchesPrice = filters.priceRange === 'all' || (() => {
         const price = parseInt(flat.price);
         switch (filters.priceRange) {
@@ -67,13 +78,63 @@ const ExploreFlats = () => {
         }
       })();
 
+      // Bedrooms filter
       const matchesBedrooms = filters.bedrooms === 'all' || 
         flat.bedrooms === parseInt(filters.bedrooms);
 
+      // Furnished filter
       const matchesFurnished = filters.furnished === 'all' || 
         flat.furnished === filters.furnished;
 
-      return matchesSearch && matchesPrice && matchesBedrooms && matchesFurnished;
+      // Area filter
+      const matchesArea = (!filters.area.min || parseInt(flat.area) >= parseInt(filters.area.min)) &&
+        (!filters.area.max || parseInt(flat.area) <= parseInt(filters.area.max));
+
+      // Location filter
+      const matchesLocation = !filters.location || 
+        flat.location.toLowerCase().includes(filters.location.toLowerCase()) ||
+        flat.city.toLowerCase().includes(filters.location.toLowerCase());
+
+      // Rating filter
+      const matchesRating = filters.rating === 'all' || (() => {
+        const rating = flat.averageRating || 0;
+        switch (filters.rating) {
+          case '4+': return rating >= 4;
+          case '3+': return rating >= 3;
+          case '2+': return rating >= 2;
+          default: return true;
+        }
+      })();
+
+      // Amenities filter
+      const matchesAmenities = filters.amenities.length === 0 || 
+        filters.amenities.every(amenity => 
+          flat.description && flat.description.toLowerCase().includes(amenity.toLowerCase())
+        );
+
+      // Property type filter (if implemented in backend)
+      const matchesPropertyType = filters.propertyType === 'all' || 
+        (flat.propertyType ? flat.propertyType === filters.propertyType : true);
+
+      // Parking filter
+      const matchesParking = filters.parking === 'all' || (() => {
+        if (!flat.description) return filters.parking === 'no';
+        const desc = flat.description.toLowerCase();
+        const hasParking = desc.includes('parking') || desc.includes('garage') || desc.includes('car');
+        return filters.parking === 'yes' ? hasParking : !hasParking;
+      })();
+
+      // Pet-friendly filter
+      const matchesPetFriendly = filters.petFriendly === 'all' || (() => {
+        if (!flat.description) return filters.petFriendly === 'no';
+        const desc = flat.description.toLowerCase();
+        const isPetFriendly = desc.includes('pet') || desc.includes('dog') || desc.includes('cat');
+        return filters.petFriendly === 'yes' ? isPetFriendly : !isPetFriendly;
+      })();
+
+      return matchesSearch && matchesPrice && matchesBedrooms && matchesFurnished && 
+             matchesArea && matchesLocation && matchesRating && matchesAmenities &&
+             matchesPropertyType && matchesParking && matchesPetFriendly;
     })
     .sort((a, b) => {
       switch (filters.sortBy) {
@@ -81,6 +142,7 @@ const ExploreFlats = () => {
         case 'price-high': return parseInt(b.price) - parseInt(a.price);
         case 'area-large': return parseInt(b.area || 0) - parseInt(a.area || 0);
         case 'area-small': return parseInt(a.area || 0) - parseInt(b.area || 0);
+        case 'rating': return (b.averageRating || 0) - (a.averageRating || 0);
         case 'newest': 
         default: 
           return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
@@ -96,7 +158,15 @@ const ExploreFlats = () => {
       priceRange: 'all',
       bedrooms: 'all',
       furnished: 'all',
-      sortBy: 'newest'
+      sortBy: 'newest',
+      amenities: [],
+      area: { min: '', max: '' },
+      location: '',
+      rating: 'all',
+      availability: 'all',
+      propertyType: 'all',
+      parking: 'all',
+      petFriendly: 'all'
     });
     setSearchTerm('');
   };
@@ -258,6 +328,118 @@ const ExploreFlats = () => {
                   <option value="price-high">Price: High to Low</option>
                   <option value="area-large">Area: Largest First</option>
                   <option value="area-small">Area: Smallest First</option>
+                  <option value="rating">Highest Rated</option>
+                </select>
+              </div>
+
+              {/* Area Range Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Area (sq ft)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={filters.area.min}
+                    onChange={(e) => handleFilterChange('area', { ...filters.area, min: e.target.value })}
+                    className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={filters.area.max}
+                    onChange={(e) => handleFilterChange('area', { ...filters.area, max: e.target.value })}
+                    className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Location Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Specific Location
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter area or city"
+                  value={filters.location}
+                  onChange={(e) => handleFilterChange('location', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Rating Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Minimum Rating
+                </label>
+                <select
+                  value={filters.rating}
+                  onChange={(e) => handleFilterChange('rating', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">Any Rating</option>
+                  <option value="4+">4+ Stars</option>
+                  <option value="3+">3+ Stars</option>
+                  <option value="2+">2+ Stars</option>
+                </select>
+              </div>
+
+              {/* Amenities Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Amenities
+                </label>
+                <div className="space-y-2">
+                  {['WiFi', 'AC', 'Gym', 'Swimming Pool', 'Security', 'Elevator', 'Garden', 'Clubhouse'].map(amenity => (
+                    <label key={amenity} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={filters.amenities.includes(amenity)}
+                        onChange={(e) => {
+                          const newAmenities = e.target.checked
+                            ? [...filters.amenities, amenity]
+                            : filters.amenities.filter(a => a !== amenity);
+                          handleFilterChange('amenities', newAmenities);
+                        }}
+                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm text-gray-700">{amenity}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Parking Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Parking
+                </label>
+                <select
+                  value={filters.parking}
+                  onChange={(e) => handleFilterChange('parking', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">Any</option>
+                  <option value="yes">Available</option>
+                  <option value="no">Not Required</option>
+                </select>
+              </div>
+
+              {/* Pet Friendly Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Pet Friendly
+                </label>
+                <select
+                  value={filters.petFriendly}
+                  onChange={(e) => handleFilterChange('petFriendly', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">Any</option>
+                  <option value="yes">Pet Friendly</option>
+                  <option value="no">No Pets</option>
                 </select>
               </div>
 
@@ -375,9 +557,8 @@ const ExploreFlats = () => {
                           </svg>
                         </div>
                       )}
-                      
-                      {/* Wishlist Button */}
-                      <div className="absolute top-4 left-4 z-20" onClick={(e) => e.stopPropagation()}>
+                      {/* Wishlist Button (only one, top right) */}
+                      <div className="absolute top-4 right-4 z-20" onClick={(e) => e.stopPropagation()}>
                         <WishlistButton
                           itemType="flat"
                           itemId={flat._id}
@@ -385,15 +566,13 @@ const ExploreFlats = () => {
                           showText={false}
                         />
                       </div>
-
                       {/* Price Badge */}
-                      <div className="absolute top-4 right-4">
+                      <div className="absolute top-4 left-4">
                         <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full shadow-lg">
                           <span className="text-lg font-bold text-green-600">₹{flat.price}</span>
                           <span className="text-sm text-gray-600">/month</span>
                         </div>
                       </div>
-
                       {/* Furnished Badge */}
                       {flat.furnished && (
                         <div className="absolute bottom-4 left-4">
@@ -408,16 +587,6 @@ const ExploreFlats = () => {
                           </span>
                         </div>
                       )}
-
-                      {/* Wishlist Button */}
-                      <div className="absolute top-4 right-4 z-20" onClick={(e) => e.stopPropagation()}>
-                        <WishlistButton
-                          itemType="flat"
-                          itemId={flat._id}
-                          size="md"
-                          showText={false}
-                        />
-                      </div>
                     </div>
 
                     {/* Content Section */}

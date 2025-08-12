@@ -10,7 +10,8 @@ const STATIC_RESOURCES = [
   '/static/css/main.css', 
   '/manifest.json',
   '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/icons/icon-512x512.png',
+  // Add other critical resources
 ];
 
 // API endpoints to cache
@@ -201,6 +202,7 @@ async function syncWishlistData() {
 // Sync review data when online
 async function syncReviewData() {
   try {
+    // Similar implementation for reviews
     console.log('Review sync completed');
   } catch (error) {
     console.error('Review sync failed:', error);
@@ -309,3 +311,71 @@ self.addEventListener('message', event => {
     });
   }
 });
+    if (notificationData.actionUrl) {
+      urlToOpen = self.location.origin + notificationData.actionUrl;
+    } else if (notificationData.type) {
+      switch (notificationData.type) {
+        case 'connection_request':
+          urlToOpen = self.location.origin + '/profile';
+          break;
+        case 'new_message':
+          urlToOpen = self.location.origin + '/chat';
+          break;
+        case 'booking_request':
+          urlToOpen = self.location.origin + '/booking-calendar';
+          break;
+        case 'new_match':
+          urlToOpen = self.location.origin + '/find-flatmate';
+          break;
+        default:
+          urlToOpen = self.location.origin + '/dashboard';
+      }
+    }
+  }
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+      // Check if there's already a window/tab open with the target URL
+      for (let i = 0; i < clientList.length; i++) {
+        const client = clientList[i];
+        if (client.url.includes(urlToOpen.replace(self.location.origin, '')) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+
+      // If no existing window/tab, open a new one
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
+  );
+});
+
+self.addEventListener('notificationclose', function(event) {
+  console.log('Notification closed:', event);
+  
+  // Track notification close for analytics if needed
+  const notificationData = event.notification.data || {};
+  
+  // You can send analytics data here
+  console.log('Notification closed by user:', notificationData.type);
+});
+
+// Background sync for offline notifications
+self.addEventListener('sync', function(event) {
+  if (event.tag === 'background-notifications') {
+    event.waitUntil(syncNotifications());
+  }
+});
+
+async function syncNotifications() {
+  try {
+    // Fetch any pending notifications when back online
+    console.log('Syncing notifications in background');
+    
+    // This would typically fetch notifications from your API
+    // and show any that were missed while offline
+  } catch (error) {
+    console.error('Error syncing notifications:', error);
+  }
+}
