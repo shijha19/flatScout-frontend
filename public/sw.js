@@ -1,16 +1,22 @@
 // Enhanced Service Worker for FlatScout PWA
-const CACHE_NAME = 'flatscout-v2.0.0';
-const STATIC_CACHE = 'flatscout-static-v2.0.0';
-const DYNAMIC_CACHE = 'flatscout-dynamic-v2.0.0';
+const CACHE_NAME = 'flatscout-v2.1.0';
+const STATIC_CACHE = 'flatscout-static-v2.1.0';
+const DYNAMIC_CACHE = 'flatscout-dynamic-v2.1.0';
 
 // Resources to cache immediately
 const STATIC_RESOURCES = [
-  '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css', 
   '/manifest.json',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png'
+];
+
+// Pages that should never be cached (auth-related pages)
+const NO_CACHE_PATHS = [
+  '/login',
+  '/signup', 
+  '/oauth-success',
+  '/auth',
+  '/'  // Don't cache root to ensure fresh environment variables
 ];
 
 // API endpoints to cache
@@ -72,6 +78,12 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // Never cache auth-related pages - always fetch from network
+  if (NO_CACHE_PATHS.some(path => url.pathname === path || url.pathname.startsWith(path + '/'))) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
   // Handle API requests with Network First strategy
   if (API_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))) {
     event.respondWith(networkFirstStrategy(request));
@@ -88,12 +100,13 @@ self.addEventListener('fetch', event => {
 
   // Handle navigation requests with Network First, falling back to Cache
   if (request.mode === 'navigate') {
+    // For navigation, always try network first to get fresh content
     event.respondWith(networkFirstStrategy(request, true));
     return;
   }
 
-  // Default: Cache First with Network Fallback
-  event.respondWith(cacheFirstStrategy(request));
+  // Default: Network First for better freshness
+  event.respondWith(networkFirstStrategy(request));
 });
 
 // Network First Strategy (for API calls and navigation)
