@@ -611,21 +611,64 @@ const Profile = () => {
               <div className="pt-4 border-t">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">Or choose an avatar style:</h4>
                 <div className="grid grid-cols-4 gap-2">
-                  {['initials', 'identicon', 'monsterid', 'wavatar'].map(style => (
+                  {[
+                    { 
+                      name: 'initials', 
+                      label: 'Initials',
+                      generateUrl: (size) => `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=F472B6&color=fff&size=${size}&bold=true`,
+                      bgColor: 'F472B6'
+                    },
+                    { 
+                      name: 'geometric', 
+                      label: 'Geometric',
+                      generateUrl: (size) => `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=3B82F6&color=fff&size=${size}&format=svg`,
+                      bgColor: '3B82F6'
+                    },
+                    { 
+                      name: 'dicebear', 
+                      label: 'Fun Avatar',
+                      generateUrl: (size) => `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.name || "User")}&size=${size}&backgroundColor=f59e0b`,
+                      bgColor: 'f59e0b'
+                    },
+                    { 
+                      name: 'gradient', 
+                      label: 'Gradient',
+                      generateUrl: (size) => `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=8B5CF6&color=fff&size=${size}&rounded=true`,
+                      bgColor: '8B5CF6'
+                    }
+                  ].map(avatarStyle => (
                     <button
-                      key={style}
-                      onClick={() => {
-                        const newUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=F472B6&color=fff&size=128`;
+                      key={avatarStyle.name}
+                      onClick={async () => {
+                        const newUrl = avatarStyle.generateUrl(128);
                         setProfileImageUrl(newUrl);
+                        
+                        // Save the new avatar to backend
+                        try {
+                          const email = localStorage.getItem('userEmail');
+                          const backendRes = await fetch('/api/user/profile', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, profileImage: newUrl })
+                          });
+                          if (backendRes.ok) {
+                            setUser(prev => ({ ...prev, profileImage: newUrl }));
+                          }
+                        } catch (error) {
+                          console.error('Failed to save avatar:', error);
+                        }
+                        
                         setShowImageModal(false);
                       }}
-                      className="p-2 border border-gray-300 rounded-lg hover:border-pink-300 transition-colors"
+                      className="p-2 border border-gray-300 rounded-lg hover:border-pink-300 transition-colors group"
+                      title={avatarStyle.label}
                     >
                       <img 
-                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=F472B6&color=fff&size=48`}
-                        alt={style}
-                        className="w-10 h-10 rounded-full mx-auto"
+                        src={avatarStyle.generateUrl(48)}
+                        alt={avatarStyle.label}
+                        className="w-10 h-10 rounded-full mx-auto group-hover:scale-110 transition-transform"
                       />
+                      <p className="text-xs text-gray-500 mt-1 text-center">{avatarStyle.label}</p>
                     </button>
                   ))}
                 </div>

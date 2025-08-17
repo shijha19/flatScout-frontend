@@ -92,12 +92,9 @@ const NotificationCenter = () => {
       });
 
       if (response.ok) {
+        // Remove the notification from the list since it's deleted on the backend
         setNotifications(prev => 
-          prev.map(notification => 
-            notification._id === notificationId 
-              ? { ...notification, read: true, readAt: new Date() }
-              : notification
-          )
+          prev.filter(notification => notification._id !== notificationId)
         );
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
@@ -117,9 +114,8 @@ const NotificationCenter = () => {
       });
 
       if (response.ok) {
-        setNotifications(prev => 
-          prev.map(notification => ({ ...notification, read: true, readAt: new Date() }))
-        );
+        // Clear all notifications since they're deleted on the backend
+        setNotifications([]);
         setUnreadCount(0);
       }
     } catch (error) {

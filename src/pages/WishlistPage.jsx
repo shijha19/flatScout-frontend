@@ -74,23 +74,59 @@ const WishlistCard = ({ item, selectedItems, setSelectedItems, updateItemDetails
     setEditingNotes(false);
   };
 
-  // Prefer flat.image for flats, fallback to itemSnapshot.imageUrl, then placeholder
-  let imageUrl = 'https://via.placeholder.com/300x200?text=No+Image';
+  // Handle images based on item type
+  let imageUrl;
+  
   if (item.itemType === 'flat') {
-    imageUrl = item.itemSnapshot?.image || item.itemSnapshot?.imageUrl || imageUrl;
+    // For flats, use the image property or show default flat image
+    if (item.itemSnapshot?.image || item.itemSnapshot?.imageUrl) {
+      imageUrl = item.itemSnapshot.image || item.itemSnapshot.imageUrl;
+    } else {
+      // Default flat image placeholder
+      imageUrl = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80';
+    }
+  } else if (item.itemType === 'flatmate') {
+    // For flatmates, use photoUrl with fallback to generated avatar
+    if (item.itemSnapshot?.photoUrl) {
+      imageUrl = item.itemSnapshot.photoUrl;
+    } else if (item.itemSnapshot?.name || item.itemSnapshot?.title) {
+      const name = item.itemSnapshot.name || item.itemSnapshot.title;
+      imageUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=300&background=F472B6&color=fff`;
+    } else {
+      imageUrl = `https://ui-avatars.com/api/?name=User&size=300&background=F472B6&color=fff`;
+    }
   } else {
-    imageUrl = item.itemSnapshot?.imageUrl || imageUrl;
+    // For PGs and other types, use image URL or default property image
+    if (item.itemSnapshot?.imageUrl || item.itemSnapshot?.image) {
+      imageUrl = item.itemSnapshot.imageUrl || item.itemSnapshot.image;
+    } else {
+      // Default property image for PGs
+      imageUrl = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80';
+    }
   }
   return (
     <div className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-200 group">
       <div className="relative">
         <img
           src={imageUrl}
-          alt={item.itemSnapshot?.title || 'Wishlist Item'}
-          className="w-full h-48 object-cover rounded-t-lg cursor-pointer"
+          alt={item.itemSnapshot?.title || item.itemSnapshot?.name || 'Wishlist Item'}
+          className={`w-full h-48 object-cover cursor-pointer ${
+            item.itemType === 'flatmate' 
+              ? 'rounded-t-lg' // Keep top rounded for card structure, but we'll add special handling
+              : 'rounded-t-lg'
+          }`}
           onClick={() => navigateToItem(item)}
           onError={(e) => {
-            e.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
+            if (item.itemType === 'flatmate') {
+              const name = item.itemSnapshot?.name || item.itemSnapshot?.title || 'User';
+              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=300&background=F472B6&color=fff`;
+            } else if (item.itemType === 'flat') {
+              // For flats, fallback to default flat image
+              e.target.src = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80';
+            } else {
+              // For other property types, fallback to default property image
+              e.target.src = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80';
+            }
           }}
         />
         
@@ -133,7 +169,10 @@ const WishlistCard = ({ item, selectedItems, setSelectedItems, updateItemDetails
         <div className="flex items-start justify-between mb-2">
           <h3 className="font-semibold text-lg text-gray-900 line-clamp-1 cursor-pointer hover:text-blue-600"
               onClick={() => navigateToItem(item)}>
-            {item.itemSnapshot?.title}
+            {item.itemType === 'flatmate' 
+              ? item.itemSnapshot?.name || 'Flatmate Profile'
+              : item.itemSnapshot?.title || 'Property Listing'
+            }
           </h3>
           <div className="relative">
             <button 
@@ -200,11 +239,34 @@ const WishlistCard = ({ item, selectedItems, setSelectedItems, updateItemDetails
             </div>
           )}
           
-          {item.itemSnapshot?.price && (
-            <div className="text-lg font-bold text-gray-900">
-              ₹{item.itemSnapshot.price.toLocaleString()}
-              {item.itemType === 'flat' ? '/month' : ''}
+          {/* Display different info based on item type */}
+          {item.itemType === 'flatmate' ? (
+            <div className="space-y-1">
+              {item.itemSnapshot?.bio && (
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  {item.itemSnapshot.bio}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-1">
+                {item.itemSnapshot?.gender && (
+                  <span className="px-2 py-1 bg-pink-100 text-pink-700 text-xs rounded-full">
+                    {item.itemSnapshot.gender}
+                  </span>
+                )}
+                {item.itemSnapshot?.budget && (
+                  <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                    Budget: ₹{item.itemSnapshot.budget}
+                  </span>
+                )}
+              </div>
             </div>
+          ) : (
+            item.itemSnapshot?.price && (
+              <div className="text-lg font-bold text-gray-900">
+                ₹{item.itemSnapshot.price.toLocaleString()}
+                {item.itemType === 'flat' ? '/month' : ''}
+              </div>
+            )
           )}
         </div>
         
@@ -277,7 +339,7 @@ const WishlistCard = ({ item, selectedItems, setSelectedItems, updateItemDetails
               className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 flex items-center"
             >
               <Eye className="w-3 h-3 mr-1" />
-              View
+              {item.itemType === 'flatmate' ? 'View Profile' : 'View Details'}
             </button>
           </div>
         </div>
@@ -381,15 +443,25 @@ const WishlistPage = () => {
 
   // Navigate to item details
   const navigateToItem = (item) => {
-    const routes = {
-      flat: `/explore-flats`,
-      flatmate: `/find-flatmate`,
-      pg: `/pg-rentals`
-    };
-    
-    const route = routes[item.itemType];
-    if (route) {
-      navigate(`${route}?id=${item.itemId}`);
+    if (item.itemType === 'flat') {
+      navigate(`/flats/${item.itemId}`);
+    } else if (item.itemType === 'flatmate') {
+      navigate(`/flatmate/${item.itemId}`);
+    } else if (item.itemType === 'pg') {
+      // For now, navigate to pg-rentals page, can be updated when PG details page is available
+      navigate(`/pg-rentals?id=${item.itemId}`);
+    } else {
+      // Fallback to the original logic
+      const routes = {
+        flat: `/explore-flats`,
+        flatmate: `/find-flatmate`,
+        pg: `/pg-rentals`
+      };
+      
+      const route = routes[item.itemType];
+      if (route) {
+        navigate(`${route}?id=${item.itemId}`);
+      }
     }
   };
 
