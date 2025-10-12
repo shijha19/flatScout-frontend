@@ -24,7 +24,8 @@ const LoginSignup = () => {
     }
     setError('');
     try {
-      const res = await fetch('/api/user/login', {
+      const baseUrl = getApiUrl() || '';
+      const res = await fetch(`${baseUrl}/api/user/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, name, password })
@@ -42,7 +43,7 @@ const LoginSignup = () => {
       
       // Check preferences status from server (includes auto-migration for existing users)
       try {
-        const prefRes = await fetch(`/api/user/preferences-status/${encodeURIComponent(data.user.email)}`);
+        const prefRes = await fetch(`${baseUrl}/api/user/preferences-status/${encodeURIComponent(data.user.email)}`);
         const prefData = await prefRes.json();
         
         if (prefRes.ok && prefData.hasCompletedPreferences) {

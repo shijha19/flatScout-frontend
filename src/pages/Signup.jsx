@@ -34,7 +34,8 @@ const Signup = () => {
     setError('');
     setSuccess('');
     try {
-      const response = await fetch('/api/user/signup', {
+      const baseUrl = getApiUrl() || '';
+      const response = await fetch(`${baseUrl}/api/user/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, userType })
