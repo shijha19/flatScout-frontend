@@ -3,6 +3,12 @@ export const getApiUrl = () => {
   // Force re-evaluation of environment variables on each call
   const apiUrl = import.meta.env.VITE_API_URL;
   
+  // Debug logging
+  console.log('Environment debug:', {
+    VITE_API_URL: apiUrl,
+    allEnv: import.meta.env
+  });
+  
   // Add some debugging for development
   if (!apiUrl && import.meta.env.DEV) {
     console.warn('VITE_API_URL is not set. Google OAuth will not be available.');
