@@ -17,6 +17,8 @@ export const getApiUrl = () => {
   
   // Clean up the URL - remove any extra protocols or malformed parts
   if (apiUrl) {
+    // Remove the variable name if it's included in the value (Netlify bug)
+    apiUrl = apiUrl.replace(/^VITE_API_URL=/, '');
     // Remove any duplicate protocol or malformed parts
     apiUrl = apiUrl.replace(/^.*?https:\/\//, 'https://');
     // Ensure no trailing slash
