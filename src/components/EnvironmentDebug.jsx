@@ -34,7 +34,9 @@ const EnvironmentDebug = () => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        mode: 'cors',
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -45,17 +47,21 @@ const EnvironmentDebug = () => {
           data
         });
       } else {
+        const responseText = await response.text();
         setTestResult({
           status: 'error',
           message: `HTTP ${response.status}: ${response.statusText}`,
-          response: await response.text()
+          response: responseText,
+          url: `${apiUrl}/health`
         });
       }
     } catch (error) {
       setTestResult({
         status: 'error',
         message: `Connection failed: ${error.message}`,
-        error: error.toString()
+        error: error.toString(),
+        url: `${apiUrl}/health`,
+        apiUrl: apiUrl
       });
     }
   };
