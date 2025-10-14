@@ -32,6 +32,7 @@ import AdminDashboard from './pages/AdminReportDashboard';
 import ChatPage from './pages/ChatPage';
 import NotificationTest from './components/NotificationTest';
 import WishlistPage from './pages/WishlistPage';
+import EnvironmentDebug from './components/EnvironmentDebug';
 
 const AppRoutes = () => (
   <Layout>
@@ -58,6 +59,8 @@ const AppRoutes = () => (
       <Route path="/wishlist" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
       <Route path="/test-email" element={<ProtectedRoute><EmailTest /></ProtectedRoute>} />
       <Route path="/test-notifications" element={<ProtectedRoute><NotificationTest /></ProtectedRoute>} />
+      {/* Debug Page - Troubleshooting Only */}
+      <Route path="/debug" element={<EnvironmentDebug />} />
       {/* OAuth Test Page - Development Only */}
       <Route path="/oauth-test" element={<OAuthTest />} />
       {/* Admin Dashboard - Admin Only */}
