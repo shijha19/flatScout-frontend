@@ -2,11 +2,16 @@
   "name": "frontend",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "build:production": "vite build --mode production"
+    "preview": "vite preview", 
+    "build:production": "vite build --mode production",
+    "build:vercel": "vite build",
+    "start": "vite preview"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.7",
