@@ -25,7 +25,10 @@ const LoginSignup = () => {
     setError('');
     try {
       const baseUrl = getApiUrl() || '';
-      const res = await fetch(`${baseUrl}/api/user/login`, {
+      const fullUrl = `${baseUrl}/api/user/login`;
+      console.log('Login URL Debug:', { baseUrl, fullUrl });
+      
+      const res = await fetch(fullUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, name, password })

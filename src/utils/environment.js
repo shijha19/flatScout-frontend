@@ -1,11 +1,32 @@
 // Environment utility to handle environment variables consistently
 export const getApiUrl = () => {
-  // Force re-evaluation of environment variables on each call
-  const apiUrl = import.meta.env.VITE_API_URL;
+  // Get the API URL from environment variables
+  let apiUrl = import.meta.env.VITE_API_URL;
+  
+  // Fallback for production if environment variable is not working
+  if (!apiUrl && typeof window !== 'undefined') {
+    // In production, try to get from a global variable if set
+    apiUrl = window.__VITE_API_URL__;
+  }
+  
+  // Last resort fallback for your specific deployment
+  if (!apiUrl && import.meta.env.PROD) {
+    console.warn('VITE_API_URL not found, using fallback');
+    apiUrl = 'https://flatscout-backend-2.onrender.com';
+  }
+  
+  // Clean up the URL - remove any extra protocols or malformed parts
+  if (apiUrl) {
+    // Remove any duplicate protocol or malformed parts
+    apiUrl = apiUrl.replace(/^.*?https:\/\//, 'https://');
+    // Ensure no trailing slash
+    apiUrl = apiUrl.replace(/\/$/, '');
+  }
   
   // Debug logging
   console.log('Environment debug:', {
-    VITE_API_URL: apiUrl,
+    VITE_API_URL: import.meta.env.VITE_API_URL,
+    cleanedApiUrl: apiUrl,
     allEnv: import.meta.env
   });
   

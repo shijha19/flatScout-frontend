@@ -35,7 +35,10 @@ const Signup = () => {
     setSuccess('');
     try {
       const baseUrl = getApiUrl() || '';
-      const response = await fetch(`${baseUrl}/api/user/signup`, {
+      const fullUrl = `${baseUrl}/api/user/signup`;
+      console.log('Signup URL Debug:', { baseUrl, fullUrl });
+      
+      const response = await fetch(fullUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, userType })
