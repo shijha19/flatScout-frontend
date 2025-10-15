@@ -14,10 +14,22 @@ export default function FindFlatmates() {
   useEffect(() => {
 	const userId = localStorage.getItem("userId");
 	const userEmail = localStorage.getItem("userEmail");
+	
+	// Check if we have required authentication data
+	if (!userId && !userEmail) {
+	  setError("User not logged in. Please login first.");
+	  setLoading(false);
+	  return;
+	}
+	
 	let url = `/api/flatmates/matches/${userId}`;
 	if (userEmail) {
 	  url += `?userEmail=${encodeURIComponent(userEmail)}`;
 	}
+	
+	console.log('FindFlatmates: Making request to:', url);
+	console.log('FindFlatmates: UserId:', userId, 'UserEmail:', userEmail);
+	
 	fetch(url)
 	  .then((res) => {
 		if (!res.ok) {
@@ -38,11 +50,34 @@ export default function FindFlatmates() {
 		}
 		setLoading(false);
 	  })
-	  .catch((error) => {
+	  .catch(async (error) => {
 		console.error('FindFlatmates fetch error:', error);
 		console.log('Request URL was:', url);
 		console.log('User ID:', userId, 'User Email:', userEmail);
-		setError(`Failed to load flatmates: ${error.message}`);
+		
+		// Try to get debug information
+		try {
+		  console.log('Attempting to get debug info...');
+		  const debugResponse = await fetch(`/api/debug/production-status`);
+		  if (debugResponse.ok) {
+			const debugData = await debugResponse.json();
+			console.log('Debug info:', debugData);
+			
+			if (!debugData.database.connected) {
+			  setError("Database connection issue. Please try again later.");
+			} else if (debugData.database.profileCount === 0) {
+			  setError("No flatmate profiles found. Users need to complete their profiles first.");
+			} else {
+			  setError(`Failed to load flatmates: ${error.message}`);
+			}
+		  } else {
+			setError(`Failed to load flatmates: ${error.message}`);
+		  }
+		} catch (debugError) {
+		  console.log('Debug request also failed:', debugError);
+		  setError(`Failed to load flatmates: ${error.message}`);
+		}
+		
 		setFlatmates([]);
 		setLoading(false);
 	  });
