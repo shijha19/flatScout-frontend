@@ -33,6 +33,7 @@ import ChatPage from './pages/ChatPage';
 import NotificationTest from './components/NotificationTest';
 import WishlistPage from './pages/WishlistPage';
 import EnvironmentDebug from './components/EnvironmentDebug';
+import ProductionDebugger from './components/ProductionDebugger';
 import ApiTester from './components/ApiTester';
 
 const AppRoutes = () => (
@@ -60,8 +61,9 @@ const AppRoutes = () => (
       <Route path="/wishlist" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
       <Route path="/test-email" element={<ProtectedRoute><EmailTest /></ProtectedRoute>} />
       <Route path="/test-notifications" element={<ProtectedRoute><NotificationTest /></ProtectedRoute>} />
-      {/* Debug Page - Troubleshooting Only */}
+      {/* Debug Pages - Troubleshooting Only */}
       <Route path="/debug" element={<EnvironmentDebug />} />
+      <Route path="/debug-production" element={<ProductionDebugger />} />
       <Route path="/api-test" element={<ApiTester />} />
       {/* OAuth Test Page - Development Only */}
       <Route path="/oauth-test" element={<OAuthTest />} />
