@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiMethods } from "../utils/api";
 
 const EditProfile = () => {
   const [form, setForm] = useState({
@@ -16,9 +17,10 @@ const EditProfile = () => {
       setError("No user email found. Please log in again.");
       return;
     }
-    fetch(`/api/user/profile?email=${encodeURIComponent(email)}`)
-      .then((res) => res.json())
-      .then((data) => {
+    
+    apiMethods.user.getProfile(email)
+      .then((response) => {
+        const data = response.data;
         if (data.user) {
           setForm({
             name: data.user.name || "",
@@ -31,7 +33,10 @@ const EditProfile = () => {
           setError(data.message || "User not found.");
         }
       })
-      .catch(() => setError("Failed to load profile. Please try again."));
+      .catch((error) => {
+        console.error('Profile fetch error:', error);
+        setError("Failed to load profile. Please try again.");
+      });
   }, []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -48,22 +53,12 @@ const EditProfile = () => {
     setError("");
     setSuccess("");
     try {
-      const res = await fetch("/api/user/profile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(form)
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || "Failed to update profile.");
-      } else {
-        setSuccess("Profile updated successfully!");
-        setTimeout(() => navigate("/profile"), 1200);
-      }
+      const response = await apiMethods.user.updateProfile(form);
+      setSuccess("Profile updated successfully!");
+      setTimeout(() => navigate("/profile"), 1200);
     } catch (err) {
-      setError("Network error. Please try again.");
+      console.error('Profile update error:', err);
+      setError(err.response?.data?.message || "Failed to update profile. Please try again.");
     } finally {
       setLoading(false);
     }

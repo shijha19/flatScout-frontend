@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { apiMethods } from "../utils/api";
 
 export default function FlatmateForm() {
   const [form, setForm] = useState({
@@ -80,7 +80,7 @@ export default function FlatmateForm() {
     }
     try {
       // Save flatmate profile
-      await axios.post(`/api/flatmates/profile/${form.userId}`, {
+      await apiMethods.flatmate.createProfile(form.userId, {
         ...form,
         userEmail: form.userEmail || localStorage.getItem("userEmail") || "",
         age: Number(form.age),
@@ -93,9 +93,7 @@ export default function FlatmateForm() {
       // Mark user as having completed preferences in the database
       const userEmail = form.userEmail || localStorage.getItem("userEmail");
       if (userEmail) {
-        await axios.put('/api/user/preferences-completed', {
-          email: userEmail
-        });
+        await apiMethods.user.markPreferencesCompleted(userEmail);
       }
 
       setSuccess(true);
