@@ -103,6 +103,24 @@ export const apiMethods = {
     getMatches: (userId, userEmail) => api.get(`/api/flatmates/matches/${userId}?userEmail=${encodeURIComponent(userEmail)}`)
   },
   
+  // Flat listing endpoints
+  flats: {
+    create: (data) => api.post('/api/flats', data),
+    getAll: () => api.get('/api/flats'),
+    getById: (id) => api.get(`/api/flats/${id}`),
+    update: (id, data) => api.put(`/api/flats/${id}`, data),
+    delete: (id) => api.delete(`/api/flats/${id}`),
+    getReviews: (id) => api.get(`/api/flats/${id}/reviews`),
+    addReview: (id, data) => api.post(`/api/flats/${id}/reviews`, data)
+  },
+  
+  // Connection endpoints  
+  connection: {
+    getStatus: (userEmail, targetUserId) => api.get(`/api/connection/connection-status?userEmail=${encodeURIComponent(userEmail)}&targetUserId=${encodeURIComponent(targetUserId)}`),
+    acceptRequest: (data) => api.post('/api/connection/accept-request', data),
+    declineRequest: (data) => api.post('/api/connection/decline-request', data)
+  },
+  
   // Health check
   health: () => api.get('/health')
 };

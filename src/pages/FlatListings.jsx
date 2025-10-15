@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiMethods } from "../utils/api";
 import "../styles/FlatListings.css";
 
 const FlatListings = () => {
@@ -128,15 +129,8 @@ const FlatListings = () => {
         createdBy: localStorage.getItem('userEmail') || 'anonymous'
       };
 
-      const res = await fetch('/api/flats', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      const data = await res.json();
-      
-      if (!res.ok) throw new Error(data.message || 'Failed to create flat listing');
+      const response = await apiMethods.flats.create(formData);
+      const data = response.data;
       
       // Success feedback
       alert("🎉 Flat listing created successfully! Redirecting to home page...");

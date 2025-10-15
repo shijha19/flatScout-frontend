@@ -84,6 +84,58 @@ const ApiTester = () => {
     }
   };
 
+  const testFlatListingCreate = async () => {
+    const userEmail = localStorage.getItem('userEmail');
+    
+    if (!userEmail) {
+      setTestResult({
+        status: 'error',
+        message: 'Please log in first to test flat listing creation'
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Test flat listing creation
+      const testData = {
+        title: 'API Test Flat',
+        location: 'Test Area',
+        address: 'Test Address, Test City',
+        city: 'Test City',
+        state: 'Test State',
+        pincode: '123456',
+        price: '15000',
+        bedrooms: 2,
+        bathrooms: 1,
+        area: 1000,
+        furnished: 'Semi-Furnished',
+        description: 'This is a test flat listing created via API testing',
+        contactName: 'Test Contact',
+        contactPhone: '9876543210',
+        contactEmail: userEmail,
+        createdBy: userEmail
+      };
+
+      const response = await apiMethods.flats.create(testData);
+      
+      setTestResult({
+        status: 'success',
+        message: 'Flat listing creation test successful!',
+        data: response.data
+      });
+    } catch (error) {
+      setTestResult({
+        status: 'error',
+        message: 'Flat listing creation test failed',
+        error: error.message,
+        details: error.response?.data || error.toString()
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-4">API Connection Tester</h2>
@@ -103,6 +155,14 @@ const ApiTester = () => {
           className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 disabled:opacity-50"
         >
           {loading ? 'Testing...' : 'Test Preference Save (Login Required)'}
+        </button>
+
+        <button
+          onClick={testFlatListingCreate}
+          disabled={loading}
+          className="w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 disabled:opacity-50"
+        >
+          {loading ? 'Testing...' : 'Test Flat Listing Creation (Login Required)'}
         </button>
 
         {testResult && (
