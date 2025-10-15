@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { getApiUrl } from "../utils/environment";
 import { useChatContext } from "../contexts/ChatContext";
 import NotificationCenter from "./NotificationCenter";
 
@@ -43,7 +44,8 @@ const Navbar = () => {
       if (userEmail) {
         try {
           console.log('[Navbar] Fetching userId using email:', userEmail);
-          const res = await fetch(`/api/user/by-email/${encodeURIComponent(userEmail)}`);
+          const apiUrl = getApiUrl();
+          const res = await fetch(`${apiUrl}/api/user/by-email/${encodeURIComponent(userEmail)}`);
           const data = await res.json();
           if (data.user && data.user._id) {
             userId = data.user._id;
@@ -63,7 +65,8 @@ const Navbar = () => {
       return;
     }
     try {
-      const res = await fetch(`/api/notification/notifications?userId=${userId}`);
+      const apiUrl = getApiUrl();
+      const res = await fetch(`${apiUrl}/api/notification/notifications?userId=${userId}`);
       const data = await res.json();
       console.log('[Navbar] notification response:', data);
       if (Array.isArray(data.notifications)) {
@@ -91,9 +94,11 @@ const Navbar = () => {
       const userEmail = localStorage.getItem('userEmail');
       if (!userEmail) return;
 
-      const response = await fetch(`/api/admin/dashboard-stats?userEmail=${encodeURIComponent(userEmail)}`);
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/admin/dashboard-stats?userEmail=${encodeURIComponent(userEmail)}`);
       setIsAdmin(response.ok);
     } catch (err) {
+      console.error('Admin status check error:', err);
       setIsAdmin(false);
     }
   };

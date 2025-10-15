@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { apiMethods } from "../utils/api";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -14,15 +15,10 @@ const Profile = () => {
     setRemovingConnectionId(connIdOrEmail);
     try {
       const email = localStorage.getItem('userEmail');
-      // Try to remove by id or email
-      const res = await fetch('/api/user/connections', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, remove: connIdOrEmail })
-      });
-      if (!res.ok) throw new Error('Failed to remove connection');
+      await apiMethods.user.removeConnection(email, connIdOrEmail);
       setConnections(prev => prev.filter(c => (c._id || c.id || c.email) !== connIdOrEmail));
     } catch (err) {
+      console.error('Remove connection error:', err);
       alert('Failed to remove connection.');
     } finally {
       setRemovingConnectionId(null);
@@ -53,9 +49,9 @@ const Profile = () => {
     }
     
     // Fetch user profile
-    fetch(`/api/user/profile?email=${encodeURIComponent(email)}`)
-      .then((res) => res.json())
-      .then((data) => {
+    apiMethods.user.getProfile(email)
+      .then((response) => {
+        const data = response.data;
         if (data.user) {
           setUser(data.user);
           setEditedUser(data.user);
@@ -71,16 +67,17 @@ const Profile = () => {
         }
         setLoading(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Profile fetch error:", error);
         setError("Failed to load profile. Please try again.");
         setLoading(false);
       });
 
     // Fetch connections
     setConnectionsLoading(true);
-    fetch(`/api/user/connections?email=${encodeURIComponent(email)}`)
-      .then((res) => res.json())
-      .then((data) => {
+    apiMethods.user.getConnections(email)
+      .then((response) => {
+        const data = response.data;
         if (Array.isArray(data.connections)) {
           // Only count real users (with valid email and name)
           const realConnections = data.connections.filter(
@@ -92,7 +89,8 @@ const Profile = () => {
         }
         setConnectionsLoading(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Connections fetch error:", error);
         setConnectionsError("Failed to load connections.");
         setConnectionsLoading(false);
       });

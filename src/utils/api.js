@@ -90,7 +90,9 @@ export const apiMethods = {
     getProfile: (email) => api.get(`/api/user/profile?email=${encodeURIComponent(email)}`),
     updateProfile: (data) => api.put('/api/user/profile', data),
     markPreferencesCompleted: (email) => api.put('/api/user/preferences-completed', { email }),
-    getPreferencesStatus: (email) => api.get(`/api/user/preferences-status/${encodeURIComponent(email)}`)
+    getPreferencesStatus: (email) => api.get(`/api/user/preferences-status/${encodeURIComponent(email)}`),
+    getConnections: (email) => api.get(`/api/user/connections?email=${encodeURIComponent(email)}`),
+    removeConnection: (email, removeId) => api.delete('/api/user/connections', { data: { email, remove: removeId } })
   },
   
   // Flatmate endpoints

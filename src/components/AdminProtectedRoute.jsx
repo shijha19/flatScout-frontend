@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
+import { getApiUrl } from '../utils/environment';
 
 const AdminProtectedRoute = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(null);
@@ -18,7 +19,8 @@ const AdminProtectedRoute = ({ children }) => {
         }
 
         // Check admin status by trying to fetch dashboard stats
-        const response = await fetch(`/api/admin/dashboard-stats?userEmail=${encodeURIComponent(userEmail)}`);
+        const apiUrl = getApiUrl();
+        const response = await fetch(`${apiUrl}/api/admin/dashboard-stats?userEmail=${encodeURIComponent(userEmail)}`);
         
         if (response.status === 403) {
           setIsAdmin(false);

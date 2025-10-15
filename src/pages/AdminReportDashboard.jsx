@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getApiUrl } from "../utils/environment";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -34,7 +35,8 @@ export default function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch(`/api/admin/dashboard-stats?userEmail=${encodeURIComponent(userEmail)}`);
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/admin/dashboard-stats?userEmail=${encodeURIComponent(userEmail)}`);
       if (response.ok) {
         const data = await response.json();
         setStats(data);
@@ -48,7 +50,8 @@ export default function AdminDashboard() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`/api/admin/users?userEmail=${encodeURIComponent(userEmail)}&page=${userPage}&limit=10&search=${encodeURIComponent(searchTerm)}`);
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/admin/users?userEmail=${encodeURIComponent(userEmail)}&page=${userPage}&limit=10&search=${encodeURIComponent(searchTerm)}`);
       if (response.ok) {
         const data = await response.json();
         setUsers(data);
@@ -60,7 +63,8 @@ export default function AdminDashboard() {
 
   const fetchActivities = async () => {
     try {
-      const url = `/api/admin/activity-logs?userEmail=${encodeURIComponent(userEmail)}&page=${activityPage}&limit=20${actionFilter ? `&action=${actionFilter}` : ''}`;
+      const apiUrl = getApiUrl();
+      const url = `${apiUrl}/api/admin/activity-logs?userEmail=${encodeURIComponent(userEmail)}&page=${activityPage}&limit=20${actionFilter ? `&action=${actionFilter}` : ''}`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
@@ -73,7 +77,8 @@ export default function AdminDashboard() {
 
   const fetchSystemMetrics = async () => {
     try {
-      const response = await fetch(`/api/admin/system-metrics?userEmail=${encodeURIComponent(userEmail)}`);
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/admin/system-metrics?userEmail=${encodeURIComponent(userEmail)}`);
       if (response.ok) {
         const data = await response.json();
         setSystemMetrics(data);
@@ -85,7 +90,8 @@ export default function AdminDashboard() {
 
   const fetchReportedFlats = async () => {
     try {
-      const url = `/api/admin/reports?userEmail=${encodeURIComponent(userEmail)}&page=${reportPage}&limit=10${reportStatusFilter ? `&status=${reportStatusFilter}` : ''}`;
+      const apiUrl = getApiUrl();
+      const url = `${apiUrl}/api/admin/reports?userEmail=${encodeURIComponent(userEmail)}&page=${reportPage}&limit=10${reportStatusFilter ? `&status=${reportStatusFilter}` : ''}`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
@@ -98,7 +104,8 @@ export default function AdminDashboard() {
 
   const updateReportStatus = async (reportId, newStatus) => {
     try {
-      const response = await fetch(`/api/admin/reports/${reportId}/status`, {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/admin/reports/${reportId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +127,8 @@ export default function AdminDashboard() {
 
   const updateUserRole = async (userId, newRole) => {
     try {
-      const response = await fetch(`/api/admin/users/${userId}/role`, {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -147,7 +155,8 @@ export default function AdminDashboard() {
     }
 
     try {
-      const response = await fetch(`/api/admin/users/${userId}?userEmail=${encodeURIComponent(userEmail)}`, {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/admin/users/${userId}?userEmail=${encodeURIComponent(userEmail)}`, {
         method: 'DELETE',
       });
 
