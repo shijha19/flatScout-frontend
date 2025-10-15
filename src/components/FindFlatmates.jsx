@@ -19,16 +19,30 @@ export default function FindFlatmates() {
 	  url += `?userEmail=${encodeURIComponent(userEmail)}`;
 	}
 	fetch(url)
-	  .then((res) => res.json())
+	  .then((res) => {
+		if (!res.ok) {
+		  throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+		}
+		return res.json();
+	  })
 	  .then((data) => {
+		console.log('FindFlatmates API response:', data);
 		if (Array.isArray(data)) {
 		  setFlatmates(data);
+		  if (data.length === 0) {
+			console.log('No flatmates returned - check if users have completed profiles');
+		  }
 		} else {
+		  console.log('Non-array response received:', data);
 		  setFlatmates([]);
 		}
 		setLoading(false);
 	  })
-	  .catch(() => {
+	  .catch((error) => {
+		console.error('FindFlatmates fetch error:', error);
+		console.log('Request URL was:', url);
+		console.log('User ID:', userId, 'User Email:', userEmail);
+		setError(`Failed to load flatmates: ${error.message}`);
 		setFlatmates([]);
 		setLoading(false);
 	  });
@@ -55,6 +69,15 @@ export default function FindFlatmates() {
 			Edit Preferences
 		  </button>
 		</div>
+		
+		{error && (
+		  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mb-6">
+			<p className="font-semibold">Error loading flatmates:</p>
+			<p>{error}</p>
+			<p className="text-sm mt-2">Please check the browser console for more details.</p>
+		  </div>
+		)}
+		
 		<div className="bg-white/80 rounded-2xl shadow-xl p-6 md:p-10">
 		  {flatmates.length === 0 ? (
 			<div className="flex flex-col items-center justify-center py-16">
