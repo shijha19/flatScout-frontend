@@ -40,46 +40,29 @@ const NotificationCenter = () => {
   }, [isOpen]);
 
   const fetchNotifications = async (pageNum = 1, reset = true) => {
-    if (!userEmail) {
-      console.warn('No user email available for notifications');
-      return;
-    }
+    if (!userEmail) return;
 
     setLoading(true);
     try {
-      const url = `/api/notifications/notifications?userEmail=${encodeURIComponent(userEmail)}&page=${pageNum}&limit=20`;
-      console.log('Fetching notifications from:', url);
+      const response = await fetch(
+        `/api/notifications/notifications?userEmail=${encodeURIComponent(userEmail)}&page=${pageNum}&limit=20`
+      );
       
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      console.log('Notifications response:', data);
-      
-      if (data.success !== false) {
+      if (response.ok) {
+        const data = await response.json();
+        
         if (reset) {
-          setNotifications(data.notifications || []);
+          setNotifications(data.notifications);
         } else {
-          setNotifications(prev => [...prev, ...(data.notifications || [])]);
+          setNotifications(prev => [...prev, ...data.notifications]);
         }
         
-        setUnreadCount(data.unreadCount || 0);
-        setHasMore(data.pagination ? data.pagination.page < data.pagination.pages : false);
+        setUnreadCount(data.unreadCount);
+        setHasMore(data.pagination.page < data.pagination.pages);
         setPage(pageNum);
-      } else {
-        console.error('API returned error:', data.message);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
-      console.error('User email:', userEmail);
-      // Set empty state on error
-      if (reset) {
-        setNotifications([]);
-        setUnreadCount(0);
-      }
     } finally {
       setLoading(false);
     }
