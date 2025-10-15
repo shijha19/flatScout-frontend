@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiMethods } from '../utils/api';
 
 const ReportListing = () => {
   const [formData, setFormData] = useState({
@@ -27,10 +28,9 @@ const ReportListing = () => {
   useEffect(() => {
     const fetchFlats = async () => {
       try {
-        const response = await fetch('/api/flats');
-        const data = await response.json();
-        if (data.flats) {
-          setExistingFlats(data.flats);
+        const response = await apiMethods.flats.getAll();
+        if (response.data.flats) {
+          setExistingFlats(response.data.flats);
         }
       } catch (error) {
         console.error('Error fetching flats:', error);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import WishlistButton from '../components/WishlistButton';
+import { apiMethods } from '../utils/api';
 
 const ExploreFlats = () => {
   const [flats, setFlats] = useState([]);
@@ -44,9 +45,8 @@ const ExploreFlats = () => {
   useEffect(() => {
     const fetchFlats = async () => {
       try {
-        const response = await fetch('/api/flats');
-        const data = await response.json();
-        setFlats(data.flats || []);
+        const response = await apiMethods.flats.getAll();
+        setFlats(response.data.flats || []);
       } catch (error) {
         console.error('Error fetching flats:', error);
       } finally {

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import MapComponent from '../components/MapComponent';
 import PWAInstallPrompt from '../components/PWAInstallPrompt';
 import OfflineIndicator from '../components/OfflineIndicator';
+import { apiMethods } from '../utils/api';
 
 const dummyListings = [
   { name: "PG Alpha", latitude: 28.6139, longitude: 77.2090 },
@@ -37,9 +38,9 @@ export default function App() {
 
   // Fetch flats count for stats
   useEffect(() => {
-    fetch('/api/flats')
-      .then(res => res.json())
-      .then(data => setFlatsCount(data.flats?.length || 0));
+    apiMethods.flats.getAll()
+      .then(response => setFlatsCount(response.data.flats?.length || 0))
+      .catch(error => console.error('Error fetching flats count:', error));
   }, []);
 
   // Search state
