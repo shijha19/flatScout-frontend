@@ -73,6 +73,32 @@ const BookingCalendar = () => {
       setShowBookingForm(true);
       setBookingStep(1);
       setSelectedSlot('');
+
+      // Load the selected property immediately so the booking form can show it even
+      // if the full flats list is still loading or unavailable.
+      fetch(`/api/flats/${flatId}`)
+        .then(res => res.ok ? res.json() : Promise.reject(new Error('Failed to load selected property')))
+        .then(data => {
+          const selectedFlat = data.flat || data;
+          if (!selectedFlat || !selectedFlat._id) {
+            return;
+          }
+
+          setFlats(prev => {
+            const existing = prev.some(flat => flat._id === selectedFlat._id);
+            return existing ? prev : [selectedFlat, ...prev];
+          });
+
+          if (selectedFlat.contactEmail) {
+            setFormData(prev => ({
+              ...prev,
+              ownerEmail: selectedFlat.contactEmail
+            }));
+          }
+        })
+        .catch(error => {
+          console.error('Error loading selected flat for booking:', error);
+        });
     }
   }, [location.search]);
 
@@ -127,7 +153,15 @@ const BookingCalendar = () => {
       const response = await fetch('/api/flats/');
       const data = await response.json();
       if (data.flats) {
-        setFlats(data.flats);
+        setFlats(prev => {
+          const merged = [...data.flats];
+          prev.forEach(flat => {
+            if (!merged.some(existing => existing._id === flat._id)) {
+              merged.push(flat);
+            }
+          });
+          return merged;
+        });
       }
     } catch (error) {
       console.error('Error fetching flats:', error);
