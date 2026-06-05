@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import WishlistButton from '../components/WishlistButton';
 import { apiMethods } from '../utils/api';
 
@@ -26,6 +26,7 @@ const ExploreFlats = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   
   const location = useLocation();
+  const navigate = useNavigate();
   
   // Check if user is a flat owner
   const userType = localStorage.getItem('userType');
@@ -692,6 +693,12 @@ const ExploreFlats = () => {
 
                       {/* Action Buttons */}
                       <div className="flex gap-3">
+                        <button
+                          onClick={() => navigate(`/booking-calendar?flatId=${flat._id}`)}
+                          className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white text-center py-3 px-4 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                        >
+                          Book Visit
+                        </button>
                         <Link
                           to={`/flats/${flat._id}`}
                           className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-center py-3 px-4 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"

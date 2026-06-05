@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
+import { useLocation } from 'react-router-dom';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../styles/calendar.css';
 import Tooltip from '../components/Tooltip';
@@ -19,6 +20,7 @@ const localizer = dateFnsLocalizer({
 });
 
 const BookingCalendar = () => {
+  const location = useLocation();
   const [bookings, setBookings] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -60,6 +62,33 @@ const BookingCalendar = () => {
     fetchBookings();
     fetchFlats();
   }, []);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const flatId = urlParams.get('flatId');
+
+    if (flatId) {
+      setFormData(prev => ({ ...prev, flatId }));
+      setSelectedDate(new Date());
+      setShowBookingForm(true);
+      setBookingStep(1);
+      setSelectedSlot('');
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    if (!formData.flatId || flats.length === 0) {
+      return;
+    }
+
+    const selectedFlat = flats.find(flat => flat._id === formData.flatId);
+    if (selectedFlat && selectedFlat.contactEmail && formData.ownerEmail !== selectedFlat.contactEmail) {
+      setFormData(prev => ({
+        ...prev,
+        ownerEmail: selectedFlat.contactEmail
+      }));
+    }
+  }, [flats, formData.flatId, formData.ownerEmail]);
 
   const fetchBookings = async () => {
     try {
