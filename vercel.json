@@ -1,6 +1,18 @@
 {
   "rewrites": [
     {
+      "source": "/api",
+      "destination": "https://flatscout-backend-2.onrender.com/api"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://flatscout-backend-2.onrender.com/api/:path*"
+    },
+    {
+      "source": "/health",
+      "destination": "https://flatscout-backend-2.onrender.com/health"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
