@@ -322,21 +322,20 @@ const BookingCalendar = () => {
         body: JSON.stringify(bookingData)
       });
 
-      if (!response.ok) {
-        let errorMessage = `HTTP error! status: ${response.status}`;
+      const responseText = await response.text();
+      let data = {};
+
+      if (responseText) {
         try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
+          data = JSON.parse(responseText);
         } catch {
-          const errorText = await response.text();
-          if (errorText) {
-            errorMessage = errorText;
-          }
+          data = { message: responseText };
         }
-        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      }
 
       if (data.success) {
         alert('Booking created successfully!');
