@@ -207,6 +207,12 @@ const BookingCalendar = () => {
       alert('Please select a property');
       return;
     }
+
+    const selectedFlat = flats.find(f => f._id === formData.flatId);
+    if (!selectedFlat) {
+      alert('Please select a valid property from the list');
+      return;
+    }
     
     if (!selectedSlot) {
       alert('Please select a time slot');
@@ -232,13 +238,16 @@ const BookingCalendar = () => {
     setLoading(true);
 
     try {
-      const selectedFlat = flats.find(f => f._id === formData.flatId);
       const bookingData = {
         ...formData,
-        ownerEmail: selectedFlat?.contactEmail || 'demo@example.com',
+        ownerEmail: selectedFlat.contactEmail || selectedFlat.ownerEmail || '',
         date: selectedDate.toISOString().split('T')[0],
         timeSlot: selectedSlot
       };
+
+      if (!bookingData.ownerEmail) {
+        throw new Error('The selected property does not have an owner email configured');
+      }
 
       console.log('Sending booking data:', bookingData);
 
@@ -251,7 +260,17 @@ const BookingCalendar = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          const errorText = await response.text();
+          if (errorText) {
+            errorMessage = errorText;
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -271,7 +290,7 @@ const BookingCalendar = () => {
         alert('Demo mode: Booking would be created successfully! (Backend not connected)');
         resetBookingModal();
       } else {
-        alert('Error creating booking. Please try again.');
+        alert(error.message || 'Error creating booking. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -580,11 +599,11 @@ const BookingCalendar = () => {
                             {flats.length > 0 ? (
                               flats.map(flat => (
                                 <option key={flat._id} value={flat._id}>
-                                  {flat.title} - {flat.location} (₹{flat.rent}/month)
+                                  {flat.title} - {flat.location} (₹{flat.price || flat.rent}/month)
                                 </option>
                               ))
                             ) : (
-                              <option value="demo-flat-1">Demo Property - Sample Location (₹15000/month)</option>
+                              <option value="" disabled>No properties available right now</option>
                             )}
                           </select>
                         </div>
