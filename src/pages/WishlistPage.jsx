@@ -63,6 +63,23 @@ const getPriorityColor = (priority) => {
   }
 };
 
+const formatWishlistPrice = (price) => {
+  if (price === null || price === undefined || price === '') {
+    return '';
+  }
+
+  if (typeof price === 'number' && Number.isFinite(price)) {
+    return price.toLocaleString();
+  }
+
+  const parsed = Number(String(price).replace(/[₹,\s]/g, ''));
+  if (Number.isFinite(parsed) && String(price).match(/^₹?[\d,\s.]+$/)) {
+    return parsed.toLocaleString();
+  }
+
+  return String(price);
+};
+
 // WishlistCard Component
 const WishlistCard = ({ item, selectedItems, setSelectedItems, updateItemDetails, navigateToItem, copyItemLink, handleRemoveItem }) => {
   const [showActions, setShowActions] = useState(false);
@@ -263,7 +280,7 @@ const WishlistCard = ({ item, selectedItems, setSelectedItems, updateItemDetails
           ) : (
             item.itemSnapshot?.price && (
               <div className="text-lg font-bold text-gray-900">
-                ₹{item.itemSnapshot.price.toLocaleString()}
+                ₹{formatWishlistPrice(item.itemSnapshot.price)}
                 {item.itemType === 'flat' ? '/month' : ''}
               </div>
             )
@@ -471,7 +488,7 @@ const WishlistPage = () => {
       'Type': item.itemType,
       'Title': item.itemSnapshot?.title || '',
       'Location': item.itemSnapshot?.location || '',
-      'Price': item.itemSnapshot?.price || '',
+      'Price': formatWishlistPrice(item.itemSnapshot?.price),
       'Category': item.category,
       'Tags': item.tags?.join(', ') || '',
       'Notes': item.notes || '',
